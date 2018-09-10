@@ -60,49 +60,73 @@ public class DroologProcessor extends AbstractProcessor {
                         (PackageElement) el.getEnclosingElement();
                 String packageName = enclosing.getQualifiedName().toString();
                 String annotatedClassName = el.getSimpleName().toString();
-                String className = String.format("%s%s", annotatedClassName, "Object");
+                String objectClassName = String.format("%s%s", annotatedClassName, "Object");
 
-                CompilationUnit cu = new CompilationUnit();
-                cu.setPackageDeclaration(packageName);
+                createObject(f, el, packageName, annotatedClassName, objectClassName);
 
-                ClassOrInterfaceDeclaration cls =
-                        cu.addClass(className);
-                cls.setExtendedTypes(new NodeList<>(JavaParser.parseClassOrInterfaceType(annotatedClassName)));
-
-                TypeElement typeElement = (TypeElement) el;
-                for (Element v : typeElement.getEnclosedElements()) {
-                    if (v.getSimpleName().contentEquals("<init>")) continue;
-                    String fieldName = v.getSimpleName().toString();
-                    m.printMessage(Diagnostic.Kind.ERROR, fieldName);
-                    TypeMirror typeMirror = v.asType();
-
-                    Type fieldType = JavaParser.parseType(typeMirror.toString());
-                    cls.addMethod(
-                            "get" + capitalized(fieldName), Modifier.PUBLIC)
-                            .setType(fieldType)
-                            .setBody(
-                                    new BlockStmt(new NodeList<>(new ReturnStmt(
-                                            new FieldAccessExpr(new ThisExpr(), fieldName)))));
-
-                    cls.addMethod("set" + capitalized(fieldName), Modifier.PUBLIC)
-                            .addParameter(fieldType, fieldName)
-                            .setBody(
-                                    new BlockStmt(new NodeList<>(
-                                            new ExpressionStmt(new AssignExpr(
-                                                    new FieldAccessExpr(new ThisExpr(), fieldName), new NameExpr(fieldName), AssignExpr.Operator.ASSIGN)))));
-                }
-
-                try {
-                    JavaFileObject sourceFile = f.createSourceFile(String.format("%s.%s", packageName, className), el);
-                    sourceFile.openWriter()
-                            .append(cu.toString())
-                            .close();
-                } catch (IOException e) {
-                    throw new IllegalArgumentException(e);
-                }
+                String objectTermClassName = String.format("%s%s", annotatedClassName, "ObjectTerm");
+                createInternalInterface(f, el, packageName, objectClassName, objectTermClassName);
             }
         }
         return false;
+    }
+
+    private void createInternalInterface(Filer f, Element el, String packageName, String objectClassName, String className) {
+        CompilationUnit cu = new CompilationUnit();
+        cu.setPackageDeclaration(packageName);
+
+        ClassOrInterfaceDeclaration cls =
+                cu.addClass(className);
+        cls.setExtendedTypes(new NodeList<>(JavaParser.parseClassOrInterfaceType(objectClassName)));
+
+        try {
+            JavaFileObject sourceFile = f.createSourceFile(String.format("%s.%s", packageName, className), el);
+            sourceFile.openWriter()
+                    .append(cu.toString())
+                    .close();
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    private void createObject(Filer f, Element el, String packageName, String annotatedClassName, String className) {
+        CompilationUnit cu = new CompilationUnit();
+        cu.setPackageDeclaration(packageName);
+
+        ClassOrInterfaceDeclaration cls =
+                cu.addClass(className);
+        cls.setExtendedTypes(new NodeList<>(JavaParser.parseClassOrInterfaceType(annotatedClassName)));
+
+        TypeElement typeElement = (TypeElement) el;
+        for (Element v : typeElement.getEnclosedElements()) {
+            if (v.getSimpleName().contentEquals("<init>")) continue;
+            String fieldName = v.getSimpleName().toString();
+            TypeMirror typeMirror = v.asType();
+
+            Type fieldType = JavaParser.parseType(typeMirror.toString());
+            cls.addMethod(
+                    "get" + capitalized(fieldName), Modifier.PUBLIC)
+                    .setType(fieldType)
+                    .setBody(
+                            new BlockStmt(new NodeList<>(new ReturnStmt(
+                                    new FieldAccessExpr(new ThisExpr(), fieldName)))));
+
+            cls.addMethod("set" + capitalized(fieldName), Modifier.PUBLIC)
+                    .addParameter(fieldType, fieldName)
+                    .setBody(
+                            new BlockStmt(new NodeList<>(
+                                    new ExpressionStmt(new AssignExpr(
+                                            new FieldAccessExpr(new ThisExpr(), fieldName), new NameExpr(fieldName), AssignExpr.Operator.ASSIGN)))));
+        }
+
+        try {
+            JavaFileObject sourceFile = f.createSourceFile(String.format("%s.%s", packageName, className), el);
+            sourceFile.openWriter()
+                    .append(cu.toString())
+                    .close();
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     public String capitalized(String original) {
