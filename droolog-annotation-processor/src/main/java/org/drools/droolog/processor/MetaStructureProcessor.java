@@ -9,11 +9,13 @@ import javax.lang.model.util.ElementFilter;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.Modifier;
+import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.ArrayCreationExpr;
 import com.github.javaparser.ast.expr.ArrayInitializerExpr;
 import com.github.javaparser.ast.expr.Expression;
@@ -21,9 +23,11 @@ import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
+import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.TypeParameter;
@@ -89,14 +93,35 @@ public class MetaStructureProcessor extends AbstractClassProcessor {
         }
 
         return new ConstructorDeclaration(EnumSet.of(Modifier.PUBLIC), "Structure")
-                .setBody(new BlockStmt(
-                        new NodeList<>(
-                                new ExpressionStmt(
-                                        new MethodCallExpr("super",
-                                                           new ArrayCreationExpr()
-                                                                   .setElementType("org.drools.droolog.meta.lib.Term[]")
-                                                                   .setInitializer(new ArrayInitializerExpr(nodes))))
-                        )
-                ));
+                .setBody(new BlockStmt(new NodeList<>(new ExpressionStmt(
+                        new MethodCallExpr("super",
+                                           new ArrayCreationExpr()
+                                                   .setElementType("org.drools.droolog.meta.lib.Term[]")
+                                                   .setInitializer(new ArrayInitializerExpr(nodes)))))));
+    }
+
+    private MethodDeclaration makeTermsSetter(String meta, List<VariableElement> fields) {
+        Type termT = JavaParser.parseType("org.drools.droolog.meta.lib.Term");
+        MethodDeclaration m = new MethodDeclaration(
+                EnumSet.of(Modifier.PUBLIC),
+                new ClassOrInterfaceType(new ClassOrInterfaceType(null, meta), "Structure"),
+                "terms");
+
+        NodeList<Parameter> parameters = new NodeList<>();
+        NodeList<Statement> methodCalls = new NodeList<>();
+        for (VariableElement f : fields) {
+            String fname = f.getSimpleName().toString();
+            Parameter p = new Parameter(termT, fname);
+            parameters.add(p);
+            MethodCallExpr mcall = new MethodCallExpr(new ThisExpr(), "term", new NodeList<>(
+                    new FieldAccessExpr(new NameExpr("Index"), fname),
+                    new NameExpr(fname)));
+            methodCalls.add(new ExpressionStmt(mcall));
+        }
+
+        m.setParameters(parameters);
+        m.setBody(new BlockStmt(methodCalls));
+
+        return m;
     }
 }

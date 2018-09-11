@@ -9,15 +9,21 @@ import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.body.InitializerDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.CastExpr;
 import com.github.javaparser.ast.expr.EnclosedExpr;
+import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.ast.expr.NullLiteralExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.VoidType;
@@ -69,26 +75,60 @@ public class ObjectTermProcessor extends AbstractClassProcessor {
                         new NodeList<>(JavaParser.parseClassOrInterfaceType(annotatedClassName)))
                 .setImplementedTypes(
                         new NodeList<>(JavaParser.parseClassOrInterfaceType(Term.ObjectTerm.class.getCanonicalName())))
-                .setMembers(members());
+                .setMembers(members(el));
     }
 
-    private NodeList<BodyDeclaration<?>> members() {
-        BlockStmt body = new BlockStmt(new NodeList<>(new ReturnStmt(
-                new NullLiteralExpr())));
+    private NodeList<BodyDeclaration<?>> members(Element el) {
+        String meta = el.getSimpleName().toString() + "Meta";
+        ClassOrInterfaceType MetaT = new ClassOrInterfaceType(null, meta);
+        ClassOrInterfaceType StructureT = new ClassOrInterfaceType(MetaT, "Structure");
+        FieldAccessExpr singletonField = new FieldAccessExpr(new NameExpr(meta), "Instance");
 
-        MethodDeclaration getValue = new MethodDeclaration(
-                EnumSet.of(Modifier.PUBLIC),
-                new ClassOrInterfaceType(new ClassOrInterfaceType(null, "PersonMeta"), "Structure"),
-                "$getStructure")
-                .setBody(body);
-        MethodDeclaration setValue = new MethodDeclaration(
+        FieldDeclaration field =
+                new FieldDeclaration(
+                        EnumSet.of(Modifier.PRIVATE),
+                        new VariableDeclarator(StructureT, "$struct",
+                                               new MethodCallExpr(singletonField, "createStructure")));
+
+        InitializerDeclaration init = new InitializerDeclaration(
+                false,
+                new BlockStmt(new NodeList<>(new ExpressionStmt(
+                        new MethodCallExpr(
+                                new NameExpr("$struct"),
+                                "bind",
+                                new NodeList<>(new ThisExpr()))))));
+
+        MethodDeclaration getValue = getter(meta);
+        MethodDeclaration setValue = setter(meta);
+
+        return new NodeList<>(field, init, getValue, setValue);
+    }
+
+    private MethodDeclaration setter(String meta) {
+        return new MethodDeclaration(
                 EnumSet.of(Modifier.PUBLIC),
                 "$setStructure",
                 new VoidType(),
                 new NodeList<>(new Parameter(
                         JavaParser.parseType(Term.Structure.class.getCanonicalName()),
-                        "structure")));
+                        "structure")))
+                .setBody(new BlockStmt(new NodeList<>(new ExpressionStmt(
+                        new AssignExpr(
+                                new NameExpr("$struct"),
+                                new CastExpr(new ClassOrInterfaceType(new ClassOrInterfaceType(null, meta), "Structure"),
+                                             new NameExpr("structure")),
+                                AssignExpr.Operator.ASSIGN))
+                )));
+    }
 
-        return new NodeList<>(getValue, setValue);
+    private MethodDeclaration getter(String meta) {
+        BlockStmt body = new BlockStmt(new NodeList<>(new ReturnStmt(
+                new NameExpr("$struct"))));
+
+        return new MethodDeclaration(
+                EnumSet.of(Modifier.PUBLIC),
+                new ClassOrInterfaceType(new ClassOrInterfaceType(null, meta), "Structure"),
+                "$getStructure")
+                .setBody(body);
     }
 }
