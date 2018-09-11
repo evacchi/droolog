@@ -1,5 +1,7 @@
 package org.drools.droolog.meta;
 
+import java.util.Arrays;
+
 import org.drools.droolog.meta.lib.AbstractAtom;
 import org.drools.droolog.meta.lib.AbstractMeta;
 import org.drools.droolog.meta.lib.AbstractStructure;
@@ -101,5 +103,11 @@ final class PersonMeta extends AbstractMeta<
             return PersonMeta.Instance;
         }
 
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof PersonMeta.Structure)) return false;
+            PersonMeta.Structure s = (PersonMeta.Structure) obj;
+            return Arrays.deepEquals(this.terms(), s.terms());
+        }
     }
 }

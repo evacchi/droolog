@@ -1,5 +1,7 @@
 package org.drools.droolog.meta;
 
+import java.util.Objects;
+
 import org.drools.droolog.meta.lib.Generated;
 
 // this is the public interface (with getters/setters)
@@ -23,10 +25,17 @@ public class PersonObject extends Person {
     }
 
     public String toString() {
-        return "PersonTerm{" +
+        return "PersonObject{" +
                 "name='" + name + '\'' +
                 ", age=" + age +
                 "} ";
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof PersonObject)) return false;
+        PersonObject p = (PersonObject) obj;
+        return Objects.equals(this.getName(), p.getName())
+                && Objects.equals(this.getAge(), p.getAge());
+    }
 }

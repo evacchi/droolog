@@ -1,9 +1,14 @@
 package org.drools.droolog.meta;
 
-public class Main {
+import org.junit.Assert;
+import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 
-    public static void main(String[] args) {
+public class MetaTest {
+
+    @Test
+    public void test() {
         PersonMeta m = PersonMeta.Instance;
 
         // person(paul, X)
@@ -28,10 +33,15 @@ public class Main {
         // person(paul, 50)
 
         System.out.println(obj1);
-        System.out.println(m.termOf(obj1));
+        PersonMeta.Structure t1 = m.termOf(obj1);
+        System.out.println(t1);
 
         System.out.println(obj2);
-        System.out.println(m.termOf(obj2));
+        PersonMeta.Structure t2 = m.termOf(obj2);
+        System.out.println(t2);
+
+        assertEquals(obj1, obj2);
+        assertEquals(t1, t2);
 
     }
 
