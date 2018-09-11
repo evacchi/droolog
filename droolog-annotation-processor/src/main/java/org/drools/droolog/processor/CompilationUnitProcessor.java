@@ -1,13 +1,11 @@
 package org.drools.droolog.processor;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Element;
-import javax.lang.model.util.ElementFilter;
 import javax.tools.JavaFileObject;
 
 import com.github.javaparser.JavaParser;
@@ -16,36 +14,26 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 
-import static java.util.stream.Collectors.toList;
-
-public abstract class AbstractCompilationUnitProcessor {
+public class CompilationUnitProcessor {
 
     protected final Filer f;
 
-    public AbstractCompilationUnitProcessor(Filer f) {
+    public CompilationUnitProcessor(Filer f) {
         this.f = f;
     }
 
-    public void process(Element el, String packageName, String annotatedClassName, String className) {
-        CompilationUnit cu = compilationUnit(el, packageName, annotatedClassName, className);
-        write(cu, el, packageName, className);
+    public void process(Element el, String packageName, ClassOrInterfaceDeclaration cls) {
+        CompilationUnit cu = compilationUnit(packageName, cls);
+        write(cu, el, packageName, cls.getNameAsString());
     }
 
-    protected CompilationUnit compilationUnit(Element el, String packageName, String annotatedClassName, String className) {
-
+    protected CompilationUnit compilationUnit(String packageName, ClassOrInterfaceDeclaration clss) {
         CompilationUnit cu = new CompilationUnit();
         cu.setPackageDeclaration(packageName);
 
-        ClassOrInterfaceDeclaration cls =
-                cu.addClass(className);
-        cls.setExtendedTypes(new NodeList<>(JavaParser.parseClassOrInterfaceType(annotatedClassName)));
-
-        cls.getMembers().addAll(members(el));
-
+        cu.getTypes().add(clss);
         return cu;
     }
-
-    abstract protected Collection<BodyDeclaration<?>> members(Element el) ;
 
     protected void write(CompilationUnit cu, Element el, String packageName, String className) {
         try {

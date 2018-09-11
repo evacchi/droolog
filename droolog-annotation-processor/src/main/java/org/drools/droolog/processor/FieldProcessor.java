@@ -8,7 +8,6 @@ import javax.lang.model.type.TypeMirror;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
@@ -21,6 +20,7 @@ import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
 
 public class FieldProcessor {
+
     private final MethodDeclaration getter;
     private final MethodDeclaration setter;
 
@@ -42,7 +42,6 @@ public class FieldProcessor {
     }
 
     private MethodDeclaration makeGetter(String fieldName, Type fieldType) {
-
         BlockStmt body = new BlockStmt(new NodeList<>(new ReturnStmt(
                 new FieldAccessExpr(new ThisExpr(), fieldName))));
         return new MethodDeclaration(
@@ -65,7 +64,6 @@ public class FieldProcessor {
                 setterNameOf(fieldName))
                 .addParameter(fieldType, fieldName)
                 .setBody(body);
-
     }
 
     private String getterNameOf(String fieldName) {
@@ -79,5 +77,4 @@ public class FieldProcessor {
     private String capitalized(String original) {
         return original.substring(0, 1).toUpperCase() + original.substring(1);
     }
-
 }

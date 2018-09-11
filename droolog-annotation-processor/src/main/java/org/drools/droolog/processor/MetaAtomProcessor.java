@@ -12,50 +12,52 @@ import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.NullLiteralExpr;
+import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
+import com.github.javaparser.ast.type.TypeParameter;
 import com.github.javaparser.ast.type.VoidType;
-import org.drools.droolog.meta.lib.Term;
+import org.drools.droolog.meta.lib.AbstractAtom;
 
 import static java.util.Arrays.asList;
 
-public class ObjectTermProcessor extends AbstractClassProcessor {
+public class MetaAtomProcessor extends AbstractClassProcessor {
 
     @Override
     public ClassOrInterfaceDeclaration classDeclaration(Element el) {
-        String annotatedClassName = el.getSimpleName().toString() + "Object";
-        return super.classDeclaration(el)
-                .setExtendedTypes(
-                        new NodeList<>(JavaParser.parseClassOrInterfaceType(annotatedClassName)))
-                .setImplementedTypes(
-                        new NodeList<>(JavaParser.parseClassOrInterfaceType(Term.ObjectTerm.class.getCanonicalName())));
+        String annotatedClassName = el.getSimpleName().toString();
+        ClassOrInterfaceType extendedClass =
+                JavaParser.parseClassOrInterfaceType(AbstractAtom.class.getCanonicalName())
+                        .setTypeArguments(new TypeParameter(annotatedClassName + "ObjectTerm"));
+
+        return super.classDeclaration(el).setExtendedTypes(
+                new NodeList<>(extendedClass)).setModifiers(EnumSet.of(Modifier.PUBLIC, Modifier.STATIC));
     }
 
-    @Override
     protected Collection<BodyDeclaration<?>> members(Element el) {
         BlockStmt body = new BlockStmt(new NodeList<>(new ReturnStmt(
                 new NullLiteralExpr())));
 
-        Type t = JavaParser.parseType(Term.Structure.class.getCanonicalName());
+        Type t = JavaParser.parseType("Object");
         MethodDeclaration getValue = new MethodDeclaration(
                 EnumSet.of(Modifier.PUBLIC),
                 t,
-                "$getStructure")
+                "getValue")
                 .setBody(body);
         MethodDeclaration setValue = new MethodDeclaration(
                 EnumSet.of(Modifier.PUBLIC),
-                "$setStructure",
+                "setValue",
                 new VoidType(),
-                new NodeList<>(new Parameter(
-                        t,
-                        "structure")));
+                new NodeList<>(new Parameter(t, "value")));
 
         return asList(getValue, setValue);
     }
 
     protected String className(String annotatedClassName) {
-        return annotatedClassName + "ObjectTerm";
+        return "Atom";
     }
 }

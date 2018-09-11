@@ -15,6 +15,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.google.auto.service.AutoService;
 
 @SupportedAnnotationTypes("org.drools.droolog.meta.lib.ObjectTerm")
@@ -31,21 +32,30 @@ public class DroologProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         Messager m = processingEnv.getMessager();
         Filer f = processingEnv.getFiler();
+        CompilationUnitProcessor cup = new CompilationUnitProcessor(f);
+        ObjectProcessor objectProcessor = new ObjectProcessor();
+        MetaProcessor metaProcessor = new MetaProcessor();
+        ObjectTermProcessor objectTermProcessor = new ObjectTermProcessor();
+
         for (TypeElement annotation : annotations) {
             Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(annotation);
             for (Element el : elements) {
                 PackageElement enclosing =
                         (PackageElement) el.getEnclosingElement();
                 String packageName = enclosing.getQualifiedName().toString();
-                String annotatedClassName = el.getSimpleName().toString();
-                String objectClassName = String.format("%s%s", annotatedClassName, "Object");
 
-                new ObjectProcessor(f)
-                        .process(el, packageName, annotatedClassName, objectClassName);
+                ClassOrInterfaceDeclaration object = objectProcessor
+                        .classDeclaration(el);
 
-                String objectTermClassName = String.format("%s%s", annotatedClassName, "ObjectTerm");
-                new ObjectTermProcessor(f)
-                        .process(el, packageName, annotatedClassName, objectTermClassName);
+                ClassOrInterfaceDeclaration meta = metaProcessor
+                        .classDeclaration(el);
+
+                ClassOrInterfaceDeclaration objectTerm = objectTermProcessor
+                        .classDeclaration(el);
+
+                cup.process(el, packageName, object);
+                cup.process(el, packageName, meta);
+                cup.process(el, packageName, objectTerm);
             }
         }
         return false;

@@ -4,18 +4,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.processing.Filer;
 import javax.lang.model.element.Element;
 import javax.lang.model.util.ElementFilter;
 
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.BodyDeclaration;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 
 import static java.util.stream.Collectors.toList;
 
-public class ObjectProcessor extends AbstractCompilationUnitProcessor {
+public class ObjectProcessor extends AbstractClassProcessor {
 
-    public ObjectProcessor(Filer f) {
-        super(f);
+    @Override
+    public ClassOrInterfaceDeclaration classDeclaration(Element el) {
+        String annotatedClassName = el.getSimpleName().toString();
+        return super.classDeclaration(el).setExtendedTypes(new NodeList<>(JavaParser.parseClassOrInterfaceType(annotatedClassName)));
     }
 
     protected Collection<BodyDeclaration<?>> members(Element el) {
@@ -29,5 +33,9 @@ public class ObjectProcessor extends AbstractCompilationUnitProcessor {
         }
 
         return bodyDeclarations;
+    }
+
+    protected String className(String annotatedClassName) {
+        return annotatedClassName + "Object";
     }
 }
