@@ -27,14 +27,15 @@ public class ObjectTermProcessor extends AbstractClassProcessor {
     public ClassOrInterfaceDeclaration classDeclaration(Element el) {
         String annotatedClassName = el.getSimpleName().toString() + "Object";
         return super.classDeclaration(el)
+                .setName(annotatedClassName + "Term")
                 .setExtendedTypes(
                         new NodeList<>(JavaParser.parseClassOrInterfaceType(annotatedClassName)))
                 .setImplementedTypes(
-                        new NodeList<>(JavaParser.parseClassOrInterfaceType(Term.ObjectTerm.class.getCanonicalName())));
+                        new NodeList<>(JavaParser.parseClassOrInterfaceType(Term.ObjectTerm.class.getCanonicalName())))
+                .setMembers(members());
     }
 
-    @Override
-    protected Collection<BodyDeclaration<?>> members(Element el) {
+    private NodeList<BodyDeclaration<?>> members() {
         BlockStmt body = new BlockStmt(new NodeList<>(new ReturnStmt(
                 new NullLiteralExpr())));
 
@@ -52,10 +53,6 @@ public class ObjectTermProcessor extends AbstractClassProcessor {
                         t,
                         "structure")));
 
-        return asList(getValue, setValue);
-    }
-
-    protected String className(String annotatedClassName) {
-        return annotatedClassName + "ObjectTerm";
+        return new NodeList<>(getValue, setValue);
     }
 }

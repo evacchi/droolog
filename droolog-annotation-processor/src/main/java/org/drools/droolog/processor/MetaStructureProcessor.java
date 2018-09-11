@@ -1,6 +1,5 @@
 package org.drools.droolog.processor;
 
-import java.util.Collection;
 import java.util.EnumSet;
 
 import javax.lang.model.element.Element;
@@ -16,7 +15,6 @@ import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.NullLiteralExpr;
-import com.github.javaparser.ast.expr.SuperExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
@@ -25,9 +23,16 @@ import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.TypeParameter;
 import org.drools.droolog.meta.lib.AbstractStructure;
 
-import static java.util.Arrays.asList;
-
 public class MetaStructureProcessor extends AbstractClassProcessor {
+
+    public MethodDeclaration factoryMethodDeclaration() {
+        EnumSet<Modifier> publicM = EnumSet.of(Modifier.PUBLIC);
+        return new MethodDeclaration(
+                publicM,
+                JavaParser.parseType("Structure"),
+                "createStructure").setBody(new BlockStmt(new NodeList<>(new ReturnStmt(new NullLiteralExpr()))));
+    }
+
 
     @Override
     public ClassOrInterfaceDeclaration classDeclaration(Element el) {
@@ -36,11 +41,15 @@ public class MetaStructureProcessor extends AbstractClassProcessor {
                 JavaParser.parseClassOrInterfaceType(AbstractStructure.class.getCanonicalName())
                         .setTypeArguments(new TypeParameter(annotatedClassName + "ObjectTerm"));
 
-        return super.classDeclaration(el).setExtendedTypes(
-                new NodeList<>(extendedClass)).setModifiers(EnumSet.of(Modifier.PUBLIC, Modifier.STATIC));
+        return super.classDeclaration(el)
+                .setName("Structure")
+                .setExtendedTypes(
+                        new NodeList<>(extendedClass))
+                .setModifiers(EnumSet.of(Modifier.PUBLIC, Modifier.STATIC))
+                .setMembers(members());
     }
 
-    protected Collection<BodyDeclaration<?>> members(Element el) {
+    private NodeList<BodyDeclaration<?>> members() {
         EnumSet<Modifier> pub = EnumSet.of(Modifier.PUBLIC);
         ConstructorDeclaration cons = new ConstructorDeclaration(pub, "Structure")
                 .setParameters(new NodeList<>(new Parameter(JavaParser.parseType("org.drools.droolog.meta.lib.Term[]"), "terms")))
@@ -59,10 +68,6 @@ public class MetaStructureProcessor extends AbstractClassProcessor {
                 t,
                 "meta")
                 .setBody(body);
-        return asList(cons, getValue);
-    }
-
-    protected String className(String annotatedClassName) {
-        return "Structure";
+        return new NodeList<>(cons, getValue);
     }
 }

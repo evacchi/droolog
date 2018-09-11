@@ -27,6 +27,14 @@ import static java.util.Arrays.asList;
 
 public class MetaAtomProcessor extends AbstractClassProcessor {
 
+    public MethodDeclaration factoryMethodDeclaration() {
+        EnumSet<Modifier> publicM = EnumSet.of(Modifier.PUBLIC);
+        return new MethodDeclaration(
+                publicM,
+                JavaParser.parseType("Atom"),
+                "createAtom").setBody(new BlockStmt(new NodeList<>(new ReturnStmt(new NullLiteralExpr()))));
+    }
+
     @Override
     public ClassOrInterfaceDeclaration classDeclaration(Element el) {
         String annotatedClassName = el.getSimpleName().toString();
@@ -35,10 +43,13 @@ public class MetaAtomProcessor extends AbstractClassProcessor {
                         .setTypeArguments(new TypeParameter(annotatedClassName + "ObjectTerm"));
 
         return super.classDeclaration(el).setExtendedTypes(
-                new NodeList<>(extendedClass)).setModifiers(EnumSet.of(Modifier.PUBLIC, Modifier.STATIC));
+                new NodeList<>(extendedClass))
+                .setName("Atom")
+                .setModifiers(EnumSet.of(Modifier.PUBLIC, Modifier.STATIC))
+                .setMembers(members());
     }
 
-    protected Collection<BodyDeclaration<?>> members(Element el) {
+    protected NodeList<BodyDeclaration<?>> members() {
         BlockStmt body = new BlockStmt(new NodeList<>(new ReturnStmt(
                 new NullLiteralExpr())));
 
@@ -54,7 +65,7 @@ public class MetaAtomProcessor extends AbstractClassProcessor {
                 new VoidType(),
                 new NodeList<>(new Parameter(t, "value")));
 
-        return asList(getValue, setValue);
+        return new NodeList<>(getValue, setValue);
     }
 
     protected String className(String annotatedClassName) {

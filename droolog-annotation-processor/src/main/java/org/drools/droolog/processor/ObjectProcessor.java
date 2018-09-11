@@ -1,7 +1,5 @@
 package org.drools.droolog.processor;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import javax.lang.model.element.Element;
@@ -19,11 +17,14 @@ public class ObjectProcessor extends AbstractClassProcessor {
     @Override
     public ClassOrInterfaceDeclaration classDeclaration(Element el) {
         String annotatedClassName = el.getSimpleName().toString();
-        return super.classDeclaration(el).setExtendedTypes(new NodeList<>(JavaParser.parseClassOrInterfaceType(annotatedClassName)));
+        return super.classDeclaration(el)
+                .setName(annotatedClassName + "Object")
+                .setExtendedTypes(new NodeList<>(JavaParser.parseClassOrInterfaceType(annotatedClassName)))
+                .setMembers(members(el));
     }
 
-    protected Collection<BodyDeclaration<?>> members(Element el) {
-        ArrayList<BodyDeclaration<?>> bodyDeclarations = new ArrayList<>();
+    private NodeList<BodyDeclaration<?>> members(Element el) {
+        NodeList<BodyDeclaration<?>> bodyDeclarations = new NodeList<>();
         List<FieldProcessor> fields = ElementFilter.fieldsIn(el.getEnclosedElements())
                 .stream().map(FieldProcessor::new).collect(toList());
 
@@ -33,9 +34,5 @@ public class ObjectProcessor extends AbstractClassProcessor {
         }
 
         return bodyDeclarations;
-    }
-
-    protected String className(String annotatedClassName) {
-        return annotatedClassName + "Object";
     }
 }
