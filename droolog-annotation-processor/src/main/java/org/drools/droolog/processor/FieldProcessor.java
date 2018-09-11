@@ -47,7 +47,7 @@ public class FieldProcessor {
         return new MethodDeclaration(
                 EnumSet.of(Modifier.PUBLIC),
                 fieldType,
-                getterNameOf(fieldName))
+                Fields.getterNameOf(fieldName))
                 .setBody(body);
     }
 
@@ -61,20 +61,8 @@ public class FieldProcessor {
         return new MethodDeclaration(
                 EnumSet.of(Modifier.PUBLIC),
                 new VoidType(),
-                setterNameOf(fieldName))
+                Fields.setterNameOf(fieldName))
                 .addParameter(fieldType, fieldName)
                 .setBody(body);
-    }
-
-    private String getterNameOf(String fieldName) {
-        return "get" + capitalized(fieldName);
-    }
-
-    private String setterNameOf(String fieldName) {
-        return "set" + capitalized(fieldName);
-    }
-
-    private String capitalized(String original) {
-        return original.substring(0, 1).toUpperCase() + original.substring(1);
     }
 }
