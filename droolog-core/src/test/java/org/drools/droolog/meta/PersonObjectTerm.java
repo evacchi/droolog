@@ -5,7 +5,7 @@ import org.drools.droolog.meta.lib.Term;
 
 // the private/internal interface with the getters for structure representation
 @Generated
-class PersonTerm extends PersonObject implements Term.ObjectTerm {
+class PersonObjectTerm extends PersonObject implements Term.ObjectTerm {
 
     PersonMeta.Structure $struct = PersonMeta.Instance.createStructure();
 

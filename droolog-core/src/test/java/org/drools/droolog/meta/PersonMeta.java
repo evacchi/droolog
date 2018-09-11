@@ -1,7 +1,5 @@
 package org.drools.droolog.meta;
 
-import java.util.Arrays;
-
 import org.drools.droolog.meta.lib.AbstractAtom;
 import org.drools.droolog.meta.lib.AbstractMeta;
 import org.drools.droolog.meta.lib.AbstractStructure;
@@ -16,10 +14,10 @@ final class PersonMeta extends AbstractMeta<
     public static final PersonMeta Instance = new PersonMeta();
 
     public PersonObject createPerson() {
-        return new PersonTerm();
+        return new PersonObjectTerm();
     }
     public Structure termOf(PersonObject term) {
-        return ((PersonTerm)term).$getStructure();
+        return ((PersonObjectTerm)term).$getStructure();
     }
 
     @Override
@@ -43,7 +41,7 @@ final class PersonMeta extends AbstractMeta<
         public static final int age = 2;
     }
 
-    final static class Atom extends AbstractAtom<PersonTerm> implements Term.Atom {
+    final static class Atom extends AbstractAtom<PersonObjectTerm> implements Term.Atom {
 
         @Override
         public void setValue(Object value) {
@@ -80,9 +78,9 @@ final class PersonMeta extends AbstractMeta<
 
     }
 
-    final static class Variable extends AbstractTerm<PersonTerm> implements Term.Variable {}
+    final static class Variable extends AbstractTerm<PersonObjectTerm> implements Term.Variable {}
 
-    final static class Structure extends AbstractStructure<PersonTerm> implements Term.Structure {
+    final static class Structure extends AbstractStructure<PersonObjectTerm> implements Term.Structure {
 
         public Structure() {
             super(new Term[] {
@@ -103,11 +101,5 @@ final class PersonMeta extends AbstractMeta<
             return PersonMeta.Instance;
         }
 
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof PersonMeta.Structure)) return false;
-            PersonMeta.Structure s = (PersonMeta.Structure) obj;
-            return Arrays.deepEquals(this.terms(), s.terms());
-        }
     }
 }

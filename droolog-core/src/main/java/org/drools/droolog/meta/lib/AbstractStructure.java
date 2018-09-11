@@ -47,6 +47,12 @@ public abstract class AbstractStructure<T extends Term.ObjectTerm> extends Abstr
         return Arrays.asList(terms).toString();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Structure)) return false;
+        Structure s = (Structure) obj;
+        return Arrays.deepEquals(this.terms(), s.terms());
+    }
 
 }
 
