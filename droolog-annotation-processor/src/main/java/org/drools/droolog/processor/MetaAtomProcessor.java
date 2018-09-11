@@ -108,7 +108,8 @@ public class MetaAtomProcessor extends AbstractClassProcessor {
                                         new ThisExpr(),
                                         "parentObject"),
                                 fieldSetter,
-                                new NodeList<>(new EnclosedExpr(new CastExpr(tt, new NameExpr("value"))))))
+                                new NodeList<>(new EnclosedExpr(new CastExpr(tt, new NameExpr("value")))))),
+                        new ReturnStmt()
                 ));
     }
 

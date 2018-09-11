@@ -1,13 +1,10 @@
 package org.drools.droolog.examples;
 
 import org.drools.droolog.meta.Unification;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class Example {
 
-    public void main(String... args) {
+    public static void main(String... args) {
         PersonMeta m = PersonMeta.Instance;
 
         // person(paul, X)
@@ -38,11 +35,5 @@ public class Example {
         System.out.println(obj2);
         PersonMeta.Structure t2 = m.termOf(obj2);
         System.out.println(t2);
-
-        assertEquals(obj1, obj2);
-        assertEquals(t1, t2);
-
     }
-
-
 }
