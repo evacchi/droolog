@@ -44,7 +44,7 @@ public abstract class AbstractStructure<T extends Term.ObjectTerm> extends Abstr
 
     @Override
     public String toString() {
-        return Arrays.asList(terms).toString();
+        return Arrays.toString(terms);
     }
 
     @Override
