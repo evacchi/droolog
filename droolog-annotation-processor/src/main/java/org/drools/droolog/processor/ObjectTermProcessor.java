@@ -40,7 +40,7 @@ public class ObjectTermProcessor extends AbstractClassProcessor {
         return new MethodDeclaration(
                 publicM,
                 objectTermT,
-                "create" + name
+                "create" + annotatedClassName
         ).setBody(new BlockStmt(new NodeList<>(new ReturnStmt(
                 new ObjectCreationExpr(null, objectTermT, new NodeList<>())))));
     }

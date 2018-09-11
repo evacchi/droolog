@@ -9,7 +9,6 @@ import javax.lang.model.util.ElementFilter;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.Modifier;
-import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -74,7 +73,8 @@ public class MetaStructureProcessor extends AbstractClassProcessor {
         FieldAccessExpr metaSingleton = new FieldAccessExpr(new NameExpr(metaName), "Instance");
         ConstructorDeclaration cons = makeConstructor(fields, metaSingleton);
         MethodDeclaration getValue = makeMetaGetter(pub, t, metaSingleton);
-        return new NodeList<>(cons, getValue);
+        MethodDeclaration termsSetter = makeTermsSetter(metaName, fields);
+        return new NodeList<>(cons, getValue, termsSetter);
     }
 
     private MethodDeclaration makeMetaGetter(EnumSet<Modifier> pub, Type t, FieldAccessExpr metaSingleton) {
@@ -108,7 +108,7 @@ public class MetaStructureProcessor extends AbstractClassProcessor {
                 "terms");
 
         NodeList<Parameter> parameters = new NodeList<>();
-        NodeList<Statement> methodCalls = new NodeList<>();
+        NodeList<Statement> statements = new NodeList<>();
         for (VariableElement f : fields) {
             String fname = f.getSimpleName().toString();
             Parameter p = new Parameter(termT, fname);
@@ -116,11 +116,13 @@ public class MetaStructureProcessor extends AbstractClassProcessor {
             MethodCallExpr mcall = new MethodCallExpr(new ThisExpr(), "term", new NodeList<>(
                     new FieldAccessExpr(new NameExpr("Index"), fname),
                     new NameExpr(fname)));
-            methodCalls.add(new ExpressionStmt(mcall));
+            statements.add(new ExpressionStmt(mcall));
         }
 
+        statements.add(new ReturnStmt(new ThisExpr()));
+
         m.setParameters(parameters);
-        m.setBody(new BlockStmt(methodCalls));
+        m.setBody(new BlockStmt(statements));
 
         return m;
     }
