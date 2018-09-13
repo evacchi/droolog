@@ -43,13 +43,13 @@ public class ObjectProcessor {
         String annotatedClassName = el.getSimpleName().toString();
         return new ClassOrInterfaceDeclaration()
                 .setModifiers(EnumSet.of(Modifier.PUBLIC))
-                .setName(annotatedClassName + "Object")
+                .setName(objectName(annotatedClassName))
                 .setImplementedTypes(new NodeList<>(JavaParser.parseClassOrInterfaceType(annotatedClassName)))
                 .setMembers(members(el));
     }
 
     private NodeList<BodyDeclaration<?>> members(Element el) {
-        String generatedClassName = el.getSimpleName().toString() + "Object";
+        String generatedClassName = objectName(el);
 
         NodeList<BodyDeclaration<?>> bodyDeclarations = new NodeList<>();
         List<FieldProcessor> fields = ElementFilter.methodsIn(el.getEnclosedElements())
@@ -61,10 +61,20 @@ public class ObjectProcessor {
         makeGetters(bodyDeclarations, fields);
         bodyDeclarations.add(
                 makeToString(fields, generatedClassName));
-        bodyDeclarations.add(
-                makeEquals(fields, generatedClassName));
+        if (!fields.isEmpty()) {
+            bodyDeclarations.add(
+                    makeEquals(fields, generatedClassName));
+        }
 
         return bodyDeclarations;
+    }
+
+    public static String objectName(Element el) {
+        return el.getSimpleName().toString() + "Object";
+    }
+
+    public static String objectName(String s) {
+        return s + "Object";
     }
 
     private void makeGetters(NodeList<BodyDeclaration<?>> bodyDeclarations, List<FieldProcessor> fields) {
@@ -144,11 +154,12 @@ public class ObjectProcessor {
             exprs.add(field.access());
             exprs.add(new StringLiteralExpr(", "));
         }
-        FieldProcessor field = fields.get(fields.size() - 1);
-        exprs.add(field.literal());
-        exprs.add(new StringLiteralExpr("="));
-        exprs.add(field.access());
-
+        if (fields.size() > 0) {
+            FieldProcessor field = fields.get(fields.size() - 1);
+            exprs.add(field.literal());
+            exprs.add(new StringLiteralExpr("="));
+            exprs.add(field.access());
+        }
         BlockStmt blockStmt = new BlockStmt(new NodeList<>(new ReturnStmt(
                 concat(begin, end, exprs, (l, r) -> new BinaryExpr(l, r, BinaryExpr.Operator.PLUS)))));
 
@@ -156,7 +167,11 @@ public class ObjectProcessor {
     }
 
     private Expression concat(Expression begin, Expression end, List<Expression> exprs, BiFunction<Expression, Expression, Expression> combiner) {
-        return combiner.apply(concat(begin, exprs.subList(0, exprs.size()), combiner), end);
+        if (exprs.isEmpty()) {
+            return combiner.apply(begin, end);
+        } else {
+            return combiner.apply(concat(begin, exprs.subList(0, exprs.size()), combiner), end);
+        }
     }
 
     private Expression concat(Expression e, List<Expression> exprs, BiFunction<Expression, Expression, Expression> combiner) {

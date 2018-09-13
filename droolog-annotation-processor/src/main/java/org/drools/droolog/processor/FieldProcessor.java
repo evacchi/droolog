@@ -52,6 +52,11 @@ public class FieldProcessor {
         return name;
     }
 
+    public NameExpr nameExpr() {
+        return new NameExpr(name);
+    }
+
+
     public Type type() {
         return type;
     }

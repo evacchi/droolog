@@ -31,8 +31,8 @@ import com.github.javaparser.ast.nodeTypes.NodeWithSimpleName;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
-import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.Type;
 import org.drools.droolog.meta.lib2.Term;
 
 import static com.github.javaparser.ast.Modifier.FINAL;
@@ -42,6 +42,15 @@ import static com.github.javaparser.ast.Modifier.STATIC;
 import static java.util.stream.Collectors.toList;
 
 public class MetaProcessor {
+
+    private static final Type TermArrayT = JavaParser.parseType(Term.class.getCanonicalName() + "[]");
+    private static final ClassOrInterfaceType ClassT = new ClassOrInterfaceType(null, "Class")
+            .setTypeArguments(new ClassOrInterfaceType(null, "?"));
+
+    public static String metaName(Element el) {
+        String annotatedClassName = el.getSimpleName().toString();
+        return annotatedClassName + "Meta";
+    }
 
     public ClassOrInterfaceDeclaration classDeclaration(Element el) {
         String annotatedClassName = el.getSimpleName().toString();
@@ -63,8 +72,7 @@ public class MetaProcessor {
     }
 
     private FieldDeclaration singletonField(Element el) {
-        String annotatedClassName = el.getSimpleName().toString();
-        String metaName = annotatedClassName + "Meta";
+        String metaName = metaName(el);
 
         ClassOrInterfaceType metaT = new ClassOrInterfaceType(null, metaName);
         return new FieldDeclaration(
@@ -79,12 +87,7 @@ public class MetaProcessor {
         String annotatedClassName = el.getSimpleName().toString();
         String fieldName = "ClassAtom";
 
-        ClassOrInterfaceType atomT =
-                new ClassOrInterfaceType(null, "org.drools.droolog.meta.lib2.Term.Atom")
-                        .setTypeArguments(
-                                new ClassOrInterfaceType(null, "Class")
-                                        .setTypeArguments(new ClassOrInterfaceType(null, "?"))
-                        );
+        ClassOrInterfaceType atomT = atom().setTypeArguments(ClassT);
         return new FieldDeclaration(
                 EnumSet.of(PRIVATE, STATIC, FINAL),
                 new VariableDeclarator(
@@ -96,15 +99,12 @@ public class MetaProcessor {
     }
 
     private MethodDeclaration classFactory(Element el) {
-        String annotatedClassName = el.getSimpleName().toString();
-        String className = el.getSimpleName().toString() + "Object";
+        String className = ObjectProcessor.objectName(el);
         MethodDeclaration md = new MethodDeclaration(
                 EnumSet.of(PUBLIC),
                 new ClassOrInterfaceType(null, className),
                 "of");
-        NodeList<BodyDeclaration<?>> bodyDeclarations = new NodeList<>();
-        List<FieldProcessor> fields = ElementFilter.methodsIn(el.getEnclosedElements())
-                .stream().map(FieldProcessor::new).collect(toList());
+        List<FieldProcessor> fields = fieldProcessorsFor(el);
 
         for (FieldProcessor fp : fields) {
             md.getParameters().add(fp.parameter());
@@ -119,82 +119,94 @@ public class MetaProcessor {
     }
 
     private MethodDeclaration structureFactory(Element el) {
-        String annotatedClassName = el.getSimpleName().toString();
-        String className = el.getSimpleName().toString() + "Object";
-        ClassOrInterfaceType ClassT = new ClassOrInterfaceType(null, className);
-        ClassOrInterfaceType StructureT = new ClassOrInterfaceType(null, Term.Structure.class.getCanonicalName())
-                .setTypeArguments(new ClassOrInterfaceType(null, className));
+        String className = ObjectProcessor.objectName(el);
+        ClassOrInterfaceType ObjectT = new ClassOrInterfaceType(null, className);
+        ClassOrInterfaceType StructureT = structure().setTypeArguments(ObjectT);
+
+        String structureVar = "structure";
+        NameExpr structureVarExpr = new NameExpr(structureVar);
+
         MethodDeclaration md = new MethodDeclaration(
                 EnumSet.of(PUBLIC),
                 "of",
-                ClassT,
-                new NodeList<>(new Parameter(StructureT, "structure")));
-        NodeList<BodyDeclaration<?>> bodyDeclarations = new NodeList<>();
-        List<FieldProcessor> fields = ElementFilter.methodsIn(el.getEnclosedElements())
-                .stream().map(FieldProcessor::new).collect(toList());
+                ObjectT,
+                new NodeList<>(new Parameter(StructureT, structureVar)));
 
-        VariableDeclarationExpr terms = new VariableDeclarationExpr(
-                new VariableDeclarator(JavaParser.parseType(Term.class.getCanonicalName() + "[]"),
-                                       "terms",
-                                       new MethodCallExpr(new NameExpr("structure"), "terms")));
+        List<FieldProcessor> fields = fieldProcessorsFor(el);
 
-        NodeList<Statement> statements = new NodeList<>(new ExpressionStmt(terms));
+        String termsVar = "terms";
+        VariableDeclarationExpr termsVarDecl = new VariableDeclarationExpr(
+                new VariableDeclarator(TermArrayT,
+                                       termsVar,
+                                       new MethodCallExpr(structureVarExpr, termsVar)));
 
-        NodeList<Expression> parameters = new NodeList<>();
-        int i = 0;
-        for (FieldProcessor field : fields) {
-            i++;
-            String fieldName = field.getter().getNameAsString();
-            ClassOrInterfaceType t = new ClassOrInterfaceType(null, Term.Atom.class.getCanonicalName()).setTypeArguments(field.getter().getType());
-            parameters.add(
-                    new MethodCallExpr(new EnclosedExpr(new CastExpr(t, new ArrayAccessExpr(new NameExpr("terms"), new IntegerLiteralExpr(i)))), "value"));
-        }
-
-//        statements.add(new ReturnStmt())
-
-        statements.add(new ReturnStmt(new ObjectCreationExpr(null, ClassT, parameters)));
-
-        md.setBody(new BlockStmt(statements));
+        md.setBody(new BlockStmt(new NodeList<>(
+                new ExpressionStmt(termsVarDecl),
+                new ReturnStmt(new ObjectCreationExpr(null, ObjectT, valuesFromTerms(fields, termsVar)))
+        )));
         return md;
     }
 
     private MethodDeclaration structureConverter(Element el) {
-        String annotatedClassName = el.getSimpleName().toString();
-        String className = el.getSimpleName().toString() + "Object";
-        ClassOrInterfaceType StructureT = new ClassOrInterfaceType(null, Term.Structure.class.getCanonicalName())
+        String className = ObjectProcessor.objectName(el);
+        ClassOrInterfaceType StructureT = structure()
                 .setTypeArguments(new ClassOrInterfaceType(null, className));
         MethodDeclaration md = new MethodDeclaration(
-                EnumSet.of(PUBLIC),
-                StructureT,
-                "of");
-        NodeList<BodyDeclaration<?>> bodyDeclarations = new NodeList<>();
-        List<FieldProcessor> fields = ElementFilter.methodsIn(el.getEnclosedElements())
-                .stream().map(FieldProcessor::new).collect(toList());
+                EnumSet.of(PUBLIC), StructureT, "of");
 
-        for (FieldProcessor fp : fields) {
-            Parameter p = fp.parameter();
-            md.getParameters().add(
-                    new Parameter(
-                            new ClassOrInterfaceType(null, Term.class.getCanonicalName()).setTypeArguments(p.getType()),
-                            p.getName()));
+        ArrayInitializerExpr array = new ArrayInitializerExpr();
+        NodeList<Parameter> parameters = md.getParameters();
+        NodeList<Expression> values = array.getValues();
+
+        values.add(new NameExpr("ClassAtom"));
+        for (FieldProcessor fp : fieldProcessorsFor(el)) {
+            parameters.add(new Parameter(term().setTypeArguments(fp.type()), fp.name()));
+            values.add(fp.nameExpr());
         }
 
-        NodeList<Expression> parameters = new NodeList<>();
-        parameters.add(new NameExpr("ClassAtom"));
-        md.getParameters()
-                .stream()
-                .map(NodeWithSimpleName::getNameAsExpression)
-                .forEach(parameters::add);
-        ArrayInitializerExpr array = new ArrayInitializerExpr()
-                .setValues(parameters);
+        ArrayCreationExpr arrayCreationExpr =
+                new ArrayCreationExpr(TermArrayT)
+                        .setInitializer(array);
 
-        ArrayCreationExpr arrayCreationExpr = new ArrayCreationExpr(
-                JavaParser.parseType(Term.class.getCanonicalName() + "[]"))
-                .setInitializer(array);
         md.setBody(new BlockStmt(new NodeList<>(
                 new ReturnStmt(new ObjectCreationExpr().setType(StructureT).setArguments(
                         new NodeList<>(arrayCreationExpr))))));
         return md;
     }
 
+    private NodeList<Expression> valuesFromTerms(List<FieldProcessor> fields, String termsVar) {
+        NodeList<Expression> parameters = new NodeList<>();
+        for (int i = 0; i < fields.size(); i++) {
+            FieldProcessor field = fields.get(i);
+            parameters.add(
+                    new MethodCallExpr(
+                            new EnclosedExpr(
+                                    new CastExpr(
+                                            atom().setTypeArguments(field.getter().getType()),
+                                            arrayAccess(termsVar, i))),
+                            "value"));
+        }
+        return parameters;
+    }
+
+    private ArrayAccessExpr arrayAccess(String termsVar, int i) {
+        return new ArrayAccessExpr(new NameExpr(termsVar), new IntegerLiteralExpr(i + 1));
+    }
+
+    private List<FieldProcessor> fieldProcessorsFor(Element el) {
+        return ElementFilter.methodsIn(el.getEnclosedElements())
+                .stream().map(FieldProcessor::new).collect(toList());
+    }
+
+    private ClassOrInterfaceType term() {
+        return new ClassOrInterfaceType(null, Term.class.getCanonicalName());
+    }
+
+    private ClassOrInterfaceType structure() {
+        return new ClassOrInterfaceType(null, Term.Structure.class.getCanonicalName());
+    }
+
+    private ClassOrInterfaceType atom() {
+        return new ClassOrInterfaceType(null, Term.Atom.class.getCanonicalName());
+    }
 }
