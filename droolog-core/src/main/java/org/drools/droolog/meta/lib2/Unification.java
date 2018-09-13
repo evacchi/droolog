@@ -2,6 +2,33 @@ package org.drools.droolog.meta.lib2;
 
 public class Unification {
 
+    public <T> Term<T> unify(Term<T> left, Term<T> right) {
+        if (left instanceof Term.Variable) {
+            return unifyVariable((Term.Variable<T>) left, right);
+        } else if (right instanceof Term.Variable) {
+            return unifyVariable((Term.Variable<T>) right, left);
+        } else if (left instanceof Term.Structure && right instanceof Term.Structure) {
+            return unify((Term.Structure<T>) left, (Term.Structure<T>) right);
+        } else if (left instanceof Term.Atom && right instanceof Term.Atom) {
+            if (left == right) return left; else throw new IllegalArgumentException();
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    public <T> Term<T> unifyVariable(Term.Variable<T> left, Term<T> right) {
+        if (right instanceof Term.Structure) {
+            Term.Structure<T> s = (Term.Structure<T>) right;
+            return unify(new Term.Structure<>(s.size()), s);
+        } else if (right instanceof Term.Atom) {
+            return right;
+        } else if (right instanceof Term.Variable) {
+            return new Term.Atom<T>(null);
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
     public <T> Term.Structure<T> unify(Term.Structure<T> left, Term.Structure<T> right) {
         if (left.size() != right.size()) {
             throw new IllegalArgumentException();
@@ -10,26 +37,8 @@ public class Unification {
         Term<?>[] terms = new Term<?>[left.size()];
 
         for (int i = 0; i < left.size(); i++) {
-            Term lt = left.term(i), rt = right.term(i);
-            if (lt instanceof Term.Atom && rt instanceof Term.Atom) {
-                if (lt != rt) throw new IllegalArgumentException();
-                else terms[i] = lt;
-            } else if (lt instanceof Term.Atom && rt instanceof Term.Variable) {
-                terms[i] = lt;
-            } else if (lt instanceof Term.Variable && rt instanceof Term.Atom) {
-                terms[i] = rt;
-            } else if (lt instanceof Term.Structure && rt instanceof Term.Variable) {
-                throw new UnsupportedOperationException();
-                //copyCompound((Term.Structure) lt, right, i);
-            } else if (lt instanceof Term.Variable && rt instanceof Term.Structure) {
-                throw new UnsupportedOperationException();
-                //copyCompound((Term.Structure) rt, left, i);
-            } else if (lt instanceof Term.Variable && rt instanceof Term.Variable) {
-                terms[i] = new Term.Atom<Object>(null);
-                // we set both "manually" to an arbitrary valid value
-            } else {
-                throw new UnsupportedOperationException();
-            }
+            Term<Object> lt = (Term<Object>) left.term(i), rt = (Term<Object>) right.term(i);
+            terms[i] = unify(lt, rt);
         }
 
         return new Term.Structure<>(terms);

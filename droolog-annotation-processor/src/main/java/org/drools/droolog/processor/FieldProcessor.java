@@ -2,7 +2,6 @@ package org.drools.droolog.processor;
 
 import java.util.EnumSet;
 
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.TypeMirror;
 
@@ -15,6 +14,7 @@ import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.expr.ThisExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
@@ -28,16 +28,32 @@ public class FieldProcessor {
     private final FieldDeclaration field;
     private final Parameter parameter;
     private final ExpressionStmt assignment;
+    private final StringLiteralExpr literal;
+    private final String name;
+    private final Type type;
+    private final FieldAccessExpr access;
 
     public FieldProcessor(ExecutableElement field) {
-        String fieldName = field.getSimpleName().toString();
+        this.name = field.getSimpleName().toString();
         TypeMirror typeMirror = field.getReturnType();
-        Type fieldType = JavaParser.parseType(typeMirror.toString());
+        this.type = JavaParser.parseType(typeMirror.toString());
 
-        this.getter = makeGetter(fieldName, fieldType);
-        this.field = makeField(fieldName, fieldType);
-        this.parameter = makeParameter(fieldName, fieldType);
-        this.assignment = makeAssignment(fieldName);
+        this.getter = makeGetter();
+        this.field = makeField();
+        this.parameter = new Parameter(
+                type,
+                name);
+        this.assignment = makeAssignment();
+        this.literal = new StringLiteralExpr(name);
+        this.access = new FieldAccessExpr(new ThisExpr(), name);
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public Type type() {
+        return type;
     }
 
     public MethodDeclaration getter() {
@@ -56,49 +72,50 @@ public class FieldProcessor {
         return assignment;
     }
 
-    private FieldDeclaration makeField(String fieldName, Type fieldType) {
-        return new FieldDeclaration(
-                EnumSet.of(Modifier.FINAL, Modifier.PRIVATE),
-                fieldType,
-                fieldName);
+    public StringLiteralExpr literal() {
+        return literal;
     }
 
-    private MethodDeclaration makeGetter(String fieldName, Type fieldType) {
+    public FieldAccessExpr access() {
+        return access;
+    }
+
+    private FieldDeclaration makeField() {
+        return new FieldDeclaration(
+                EnumSet.of(Modifier.FINAL, Modifier.PRIVATE),
+                type,
+                name);
+    }
+
+    private MethodDeclaration makeGetter() {
         BlockStmt body = new BlockStmt(new NodeList<>(new ReturnStmt(
-                new FieldAccessExpr(new ThisExpr(), fieldName))));
+                new FieldAccessExpr(new ThisExpr(), name))));
         return new MethodDeclaration(
                 EnumSet.of(Modifier.PUBLIC),
-                fieldType,
-                fieldName)
+                type,
+                name)
                 .setBody(body);
     }
 
-    private Parameter makeParameter(String fieldName, Type fieldType) {
-        return new Parameter(
-                fieldType,
-                fieldName);
-    }
-
-    private ExpressionStmt makeAssignment(String fieldName) {
+    private ExpressionStmt makeAssignment() {
         return new ExpressionStmt(new AssignExpr(
-                new FieldAccessExpr(new ThisExpr(), fieldName),
-                new NameExpr(fieldName),
+                new FieldAccessExpr(new ThisExpr(), name),
+                new NameExpr(name),
                 AssignExpr.Operator.ASSIGN));
     }
 
-
-    private MethodDeclaration makeSetter(String fieldName, Type fieldType) {
+    private MethodDeclaration makeSetter() {
         AssignExpr assignExpr = new AssignExpr(
-                new FieldAccessExpr(new ThisExpr(), fieldName),
-                new NameExpr(fieldName),
+                new FieldAccessExpr(new ThisExpr(), name),
+                new NameExpr(name),
                 AssignExpr.Operator.ASSIGN);
         BlockStmt body = new BlockStmt(new NodeList<>(
                 new ExpressionStmt(assignExpr)));
         return new MethodDeclaration(
                 EnumSet.of(Modifier.PUBLIC),
                 new VoidType(),
-                Fields.setterNameOf(fieldName))
-                .addParameter(fieldType, fieldName)
+                Fields.setterNameOf(name))
+                .addParameter(type, name)
                 .setBody(body);
     }
 }

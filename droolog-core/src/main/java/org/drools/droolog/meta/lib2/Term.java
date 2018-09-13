@@ -30,6 +30,13 @@ public interface Term<T> {
 
         private final Term<?>[] terms;
 
+        public Structure(int n) {
+            this.terms = new Term<?>[n];
+            for (int i = 0; i < n; i++) {
+                terms[i] = new Variable<>();
+            }
+        }
+
         public Structure(Term<?>[] terms) {
             this.terms = terms;
         }

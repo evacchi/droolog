@@ -11,7 +11,6 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
@@ -19,18 +18,14 @@ import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.ArrayAccessExpr;
 import com.github.javaparser.ast.expr.ArrayCreationExpr;
 import com.github.javaparser.ast.expr.ArrayInitializerExpr;
-import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.CastExpr;
 import com.github.javaparser.ast.expr.ClassExpr;
 import com.github.javaparser.ast.expr.EnclosedExpr;
 import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.ast.expr.NullLiteralExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
-import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.nodeTypes.NodeWithSimpleName;
 import com.github.javaparser.ast.stmt.BlockStmt;
@@ -138,12 +133,12 @@ public class MetaProcessor {
         List<FieldProcessor> fields = ElementFilter.methodsIn(el.getEnclosedElements())
                 .stream().map(FieldProcessor::new).collect(toList());
 
-        ExpressionStmt terms = new ExpressionStmt(new VariableDeclarationExpr(
+        VariableDeclarationExpr terms = new VariableDeclarationExpr(
                 new VariableDeclarator(JavaParser.parseType(Term.class.getCanonicalName() + "[]"),
                                        "terms",
-                                       new MethodCallExpr(new NameExpr("structure"), "terms"))));
+                                       new MethodCallExpr(new NameExpr("structure"), "terms")));
 
-        NodeList<Statement> statements = new NodeList<>(terms);
+        NodeList<Statement> statements = new NodeList<>(new ExpressionStmt(terms));
 
         NodeList<Expression> parameters = new NodeList<>();
         int i = 0;

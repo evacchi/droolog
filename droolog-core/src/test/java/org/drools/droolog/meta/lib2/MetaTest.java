@@ -16,7 +16,9 @@ public class MetaTest {
         Structure<PersonObject> p1 = person.of(paul, variable());
         Structure<PersonObject> p2 = person.of(variable(), _50);
 
-        Structure<PersonObject> r = new Unification().unify(p1, p2);
+        Structure<PersonObject> r =
+                new Unification()
+                        .unify(p1, p2);
         PersonObject paulObject = person.of(r);
 
         System.out.println(r);
