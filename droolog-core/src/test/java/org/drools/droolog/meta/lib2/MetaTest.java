@@ -12,12 +12,11 @@ public class MetaTest {
         Atom<String> paul = atom("Paul");
         Atom<Integer> _50 = atom(50);
 
-        PersonMeta person = new PersonMeta();
+        PersonMeta person = PersonMeta.Instance;
         Structure<PersonObject> p1 = person.of(paul, variable());
         Structure<PersonObject> p2 = person.of(variable(), _50);
 
-        Structure<PersonObject> r =
-                (Structure<PersonObject>) new Unification(p1, p2).term();
+        Structure<PersonObject> r = Unification.of(p1, p2).term();
         PersonObject paulObject = person.of(r);
 
         System.out.println(r);

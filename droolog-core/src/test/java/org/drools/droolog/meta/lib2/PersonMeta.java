@@ -4,6 +4,7 @@ import org.drools.droolog.meta.lib2.Term.*;
 
 public class PersonMeta {
 
+    public static final PersonMeta Instance = new PersonMeta();
     private static final Atom<Class<?>> ClassAtom = new Atom<>(PersonObject.class);
 
     public PersonObject of(String name, Integer age) {

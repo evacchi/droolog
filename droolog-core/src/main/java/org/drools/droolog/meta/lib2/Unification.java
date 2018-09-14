@@ -1,27 +1,28 @@
 package org.drools.droolog.meta.lib2;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Stream;
 
 public class Unification<T> {
 
-    private final Term<T> term;
-    private final List<Binding<?>> bindings;
+    private final Term.Structure<T> term;
+    private final Bindings bindings;
 
-    public Unification(Term<T> left, Term<T> right) {
+    public static <T> Unification<T> of(Term.Structure<T> left, Term.Structure<T> right) {
+        return new Unification<>(left, right);
+    }
+
+    Unification(Term.Structure<T> left, Term.Structure<T> right) {
         // let's assume the two sets are disjoint for now
         int variableCount = countVariables(left) + countVariables(right);
-
-        this.bindings = new ArrayList<>(variableCount);
+        this.bindings = new Bindings(variableCount);
         this.term = unify(left, right);
     }
 
-    public Term<T> term() {
+    public Term.Structure<T> term() {
         return term;
     }
 
-    public List<Binding<?>> bindings() {
+    public Bindings bindings() {
         return bindings;
     }
 
@@ -59,23 +60,18 @@ public class Unification<T> {
         if (right instanceof Term.Structure) {
             Term.Structure<T> s = (Term.Structure<T>) right;
             Term.Structure<T> t = unify(new Term.Structure<>(s.size()), s);
-            addBinding(left, t);
+            bindings.put(left, t);
             return t;
         } else if (right instanceof Term.Atom) {
-            addBinding(left, right);
+            bindings.put(left, right);
             return right;
         } else if (right instanceof Term.Variable) {
             Term.Atom<T> atom = new Term.Atom<>(null);
-            addBinding(left, atom);
+            bindings.put(left, atom);
             return atom;
         } else {
             throw new UnsupportedOperationException();
         }
-    }
-
-    private <T> void addBinding(Term.Variable<T> left, Term<T> t) {
-        if (left instanceof Term.Underscore) return;
-        this.bindings.add(new Binding<>(left, t));
     }
 
     private <T> Term.Structure<T> unify(Term.Structure<T> left, Term.Structure<T> right) {
@@ -93,28 +89,5 @@ public class Unification<T> {
         return new Term.Structure<>(terms);
     }
 
-    public static class Binding<U> {
-
-        private final Term.Variable<U> variable;
-        private final Term<U> term;
-
-        public Binding(Term.Variable<U> variable, Term<U> term) {
-            this.variable = variable;
-            this.term = term;
-        }
-
-        public Term.Variable<U> variable() {
-            return variable;
-        }
-
-        public Term<U> term() {
-            return term;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("%s -> %s", variable, term);
-        }
-    }
 }
 

@@ -16,20 +16,18 @@ public class Example {
         var zip     = atom("L18 9TN");
         var country = atom("United Kingdom");
 
-        PersonMeta person = new PersonMeta();
-        AddressMeta address = new AddressMeta();
-
-        Term.Structure<Address> a = address.of(street, city, zip, country);
+        PersonMeta person = PersonMeta.Instance;
+        AddressMeta address = AddressMeta.Instance;
 
         Term.Structure<Person> p1 = person.of(first, variable(), variable());
-        Term.Structure<Person> p2 = person.of(variable(), second, a);
+        Term.Structure<Person> p2 = person.of(variable(), second, address.of(street, city, zip, country));
 
-        Unification<Person> unification = new Unification<>(p1, p2);
-        Term.Structure<Person> r = (Term.Structure<Person>) unification.term();
-        Person paulObject = person.of(r);
+        Unification<Person> unification = Unification.of(p1, p2);
+        Term.Structure<Person> s = unification.term();
+        Person p = person.of(s);
 
-        System.out.println(r);
-        System.out.println(paulObject);
+        System.out.println(s);
+        System.out.println(p);
         System.out.println(unification.bindings());
 
     }

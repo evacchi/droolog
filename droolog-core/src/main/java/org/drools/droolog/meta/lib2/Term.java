@@ -82,5 +82,8 @@ public interface Term<T> {
     public static <T> Term.Variable<T> variable() {
         return new Term.Variable<>();
     }
+    public static <T> Term.Variable<T> $() {
+        return new Term.Underscore<>();
+    }
 
 }
