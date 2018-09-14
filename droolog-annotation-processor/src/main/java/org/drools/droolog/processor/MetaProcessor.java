@@ -22,6 +22,7 @@ import com.github.javaparser.ast.expr.CastExpr;
 import com.github.javaparser.ast.expr.ClassExpr;
 import com.github.javaparser.ast.expr.EnclosedExpr;
 import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
@@ -49,12 +50,15 @@ public class MetaProcessor {
 
     public static String metaName(Element el) {
         String annotatedClassName = el.getSimpleName().toString();
+        return metaName(annotatedClassName);
+    }
+
+    private static String metaName(String annotatedClassName) {
         return annotatedClassName + "Meta";
     }
 
     public ClassOrInterfaceDeclaration classDeclaration(Element el) {
-        String annotatedClassName = el.getSimpleName().toString();
-        String metaName = annotatedClassName + "Meta";
+        String metaName = metaName(el);
         return new ClassOrInterfaceDeclaration()
                 .setModifiers(EnumSet.of(PUBLIC))
                 .setName(metaName)
@@ -99,10 +103,11 @@ public class MetaProcessor {
     }
 
     private MethodDeclaration classFactory(Element el) {
+        String interfaceName = el.getSimpleName().toString();
         String className = ObjectProcessor.objectName(el);
         MethodDeclaration md = new MethodDeclaration(
                 EnumSet.of(PUBLIC),
-                new ClassOrInterfaceType(null, className),
+                new ClassOrInterfaceType(null, interfaceName),
                 "of");
         List<FieldProcessor> fields = fieldProcessorsFor(el);
 
@@ -119,9 +124,11 @@ public class MetaProcessor {
     }
 
     private MethodDeclaration structureFactory(Element el) {
+        String interfaceName = el.getSimpleName().toString();
         String className = ObjectProcessor.objectName(el);
         ClassOrInterfaceType ObjectT = new ClassOrInterfaceType(null, className);
-        ClassOrInterfaceType StructureT = structure().setTypeArguments(ObjectT);
+        ClassOrInterfaceType InterfaceT = new ClassOrInterfaceType(null, interfaceName);
+        ClassOrInterfaceType StructureT = structure().setTypeArguments(InterfaceT);
 
         String structureVar = "structure";
         NameExpr structureVarExpr = new NameExpr(structureVar);
@@ -129,7 +136,7 @@ public class MetaProcessor {
         MethodDeclaration md = new MethodDeclaration(
                 EnumSet.of(PUBLIC),
                 "of",
-                ObjectT,
+                InterfaceT,
                 new NodeList<>(new Parameter(StructureT, structureVar)));
 
         List<FieldProcessor> fields = fieldProcessorsFor(el);
@@ -148,9 +155,9 @@ public class MetaProcessor {
     }
 
     private MethodDeclaration structureConverter(Element el) {
-        String className = ObjectProcessor.objectName(el);
+        String interfaceName = el.getSimpleName().toString();
         ClassOrInterfaceType StructureT = structure()
-                .setTypeArguments(new ClassOrInterfaceType(null, className));
+                .setTypeArguments(new ClassOrInterfaceType(null, interfaceName));
         MethodDeclaration md = new MethodDeclaration(
                 EnumSet.of(PUBLIC), StructureT, "of");
 
@@ -178,15 +185,31 @@ public class MetaProcessor {
         NodeList<Expression> parameters = new NodeList<>();
         for (int i = 0; i < fields.size(); i++) {
             FieldProcessor field = fields.get(i);
-            parameters.add(
-                    new MethodCallExpr(
-                            new EnclosedExpr(
-                                    new CastExpr(
-                                            atom().setTypeArguments(field.getter().getType()),
-                                            arrayAccess(termsVar, i))),
-                            "value"));
+            ArrayAccessExpr arrayAccessExpr = arrayAccess(termsVar, i);
+            if (field.isStructure()) {
+                parameters.add(valueOfStructure(field, arrayAccessExpr));
+            } else {
+                parameters.add(valueOfAtom(field, arrayAccessExpr));
+            }
         }
         return parameters;
+    }
+
+    private Expression valueOfStructure(FieldProcessor field, ArrayAccessExpr arrayAccessExpr) {
+        return new MethodCallExpr(
+                new FieldAccessExpr(new NameExpr(metaName(field.type().asString())), "Instance"),
+                "of",
+                new NodeList<>(castTo(structure().setTypeArguments(field.type()), arrayAccessExpr)));
+    }
+
+    private EnclosedExpr castTo(Type type, Expression expr) {
+        return new EnclosedExpr(new CastExpr(type, expr));
+    }
+
+    private MethodCallExpr valueOfAtom(FieldProcessor field, Expression arrayAccessExpr) {
+        return new MethodCallExpr(
+                castTo(atom().setTypeArguments(field.type()), arrayAccessExpr),
+                "value");
     }
 
     private ArrayAccessExpr arrayAccess(String termsVar, int i) {

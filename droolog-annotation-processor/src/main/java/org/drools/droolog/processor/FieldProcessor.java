@@ -21,6 +21,7 @@ import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
+import org.drools.droolog.meta.lib.ObjectTerm;
 
 public class FieldProcessor {
 
@@ -32,12 +33,13 @@ public class FieldProcessor {
     private final String name;
     private final Type type;
     private final FieldAccessExpr access;
+    private final boolean isStructure;
 
     public FieldProcessor(ExecutableElement field) {
         this.name = field.getSimpleName().toString();
         TypeMirror typeMirror = field.getReturnType();
         this.type = JavaParser.parseType(typeMirror.toString());
-
+        this.isStructure = field.getAnnotation(ObjectTerm.class) != null;
         this.getter = makeGetter();
         this.field = makeField();
         this.parameter = new Parameter(
@@ -122,5 +124,9 @@ public class FieldProcessor {
                 Fields.setterNameOf(name))
                 .addParameter(type, name)
                 .setBody(body);
+    }
+
+    public boolean isStructure() {
+        return this.isStructure;
     }
 }

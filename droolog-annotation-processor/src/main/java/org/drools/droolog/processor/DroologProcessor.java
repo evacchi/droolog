@@ -39,9 +39,11 @@ public class DroologProcessor extends AbstractProcessor {
         for (TypeElement annotation : annotations) {
             Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(annotation);
             for (Element el : elements) {
-                PackageElement enclosing =
-                        (PackageElement) el.getEnclosingElement();
-                String packageName = enclosing.getQualifiedName().toString();
+                Element enclosingElement = el.getEnclosingElement();
+                if (!(enclosingElement instanceof PackageElement)) continue;
+                PackageElement packageElement =
+                        (PackageElement) enclosingElement;
+                String packageName = packageElement.getQualifiedName().toString();
 
                 ClassOrInterfaceDeclaration object = objectProcessor
                         .classDeclaration(el);
