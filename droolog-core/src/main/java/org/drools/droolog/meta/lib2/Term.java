@@ -22,8 +22,19 @@ public interface Term<T> {
         }
     }
 
-    final class Variable<T> implements Term<T> {
+    class Variable<T> implements Term<T> {
 
+        @Override
+        public String toString() {
+            return "V@" + Integer.toHexString(hashCode());
+        }
+    }
+
+    class Underscore<T> extends Variable<T> {
+        @Override
+        public String toString() {
+            return "_G@" + Integer.toHexString(hashCode());
+        }
     }
 
     final class Structure<T> implements Term<T> {
@@ -33,7 +44,7 @@ public interface Term<T> {
         public Structure(int n) {
             this.terms = new Term<?>[n];
             for (int i = 0; i < n; i++) {
-                terms[i] = new Variable<>();
+                terms[i] = new Underscore<>();
             }
         }
 
@@ -55,7 +66,7 @@ public interface Term<T> {
 
         @Override
         public String toString() {
-            return Arrays.toString(terms);
+            return "Structure" + Arrays.toString(terms);
         }
 
         @Override
