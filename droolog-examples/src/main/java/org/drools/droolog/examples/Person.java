@@ -1,10 +1,10 @@
 package org.drools.droolog.examples;
 
-import org.drools.droolog.meta.lib.ObjectTerm;
+import org.drools.droolog.meta.lib.Metable;
 
-@ObjectTerm
-public interface Person {
-    String firstName();
-    String secondName();
-    @ObjectTerm Address address();
+@Metable
+public class Person {
+    Person_ meta =  new Person_();
+    String name;
+    Integer age;
 }

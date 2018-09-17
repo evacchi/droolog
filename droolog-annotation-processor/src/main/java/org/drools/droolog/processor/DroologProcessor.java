@@ -18,10 +18,12 @@ import javax.lang.model.element.TypeElement;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.google.auto.service.AutoService;
 
-@SupportedAnnotationTypes("org.drools.droolog.meta.lib.ObjectTerm")
+@SupportedAnnotationTypes("org.drools.droolog.meta.lib.Metable")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(Processor.class)
 public class DroologProcessor extends AbstractProcessor {
+
+    private final String META_SUFFIX = "_";
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -48,11 +50,7 @@ public class DroologProcessor extends AbstractProcessor {
                 ClassOrInterfaceDeclaration object = objectProcessor
                         .classDeclaration(el);
 
-                ClassOrInterfaceDeclaration meta = metaProcessor
-                        .classDeclaration(el);
-
                 cup.process(el, packageName, object);
-                cup.process(el, packageName, meta);
             }
         }
         return false;
