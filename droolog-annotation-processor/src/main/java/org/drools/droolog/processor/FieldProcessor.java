@@ -2,7 +2,7 @@ package org.drools.droolog.processor;
 
 import java.util.EnumSet;
 
-import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
 import com.github.javaparser.JavaParser;
@@ -10,44 +10,37 @@ import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
+import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.expr.ThisExpr;
+import com.github.javaparser.ast.expr.TypeExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
+import com.github.javaparser.ast.stmt.SwitchEntryStmt;
+import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
-import org.drools.droolog.meta.lib.ObjectTerm;
+import org.drools.droolog.meta.lib4.TermState;
 
 public class FieldProcessor {
 
-    private final MethodDeclaration getter;
-    private final FieldDeclaration field;
-    private final Parameter parameter;
-    private final ExpressionStmt assignment;
-    private final StringLiteralExpr literal;
-    private final String name;
-    private final Type type;
-    private final FieldAccessExpr access;
-    private final boolean isStructure;
+    static final Type TermStateT = JavaParser.parseType(TermState.class.getCanonicalName());
 
-    public FieldProcessor(ExecutableElement field) {
+    private final VariableElement element;
+    private final String name;
+    private final int index;
+    private final Type type;
+
+    public FieldProcessor(VariableElement field, int index) {
         this.name = field.getSimpleName().toString();
-        TypeMirror typeMirror = field.getReturnType();
+        this.element = field;
+        this.index = index;
+        TypeMirror typeMirror = field.asType();
         this.type = JavaParser.parseType(typeMirror.toString());
-        this.isStructure = field.getAnnotation(ObjectTerm.class) != null;
-        this.getter = makeGetter();
-        this.field = makeField();
-        this.parameter = new Parameter(
-                type,
-                name);
-        this.assignment = makeAssignment();
-        this.literal = new StringLiteralExpr(name);
-        this.access = new FieldAccessExpr(new ThisExpr(), name);
     }
 
     public String name() {
@@ -58,43 +51,36 @@ public class FieldProcessor {
         return new NameExpr(name);
     }
 
+    public FieldDeclaration index() {
+        return new FieldDeclaration(
+                EnumSet.of(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL),
+                new VariableDeclarator(PrimitiveType.intType(), name, new IntegerLiteralExpr(index)));
+    }
+
+    public FieldDeclaration termState() {
+        return new FieldDeclaration(
+                EnumSet.of(Modifier.PUBLIC),
+                new VariableDeclarator(TermStateT, String.format("%s_%s", name, ObjectProcessor.TermState), new FieldAccessExpr(new TypeExpr(TermStateT), "Free")));
+    }
+
+    public SwitchEntryStmt switchEntry(String suffix) {
+        return new SwitchEntryStmt(new NameExpr(name), new NodeList<>(
+                new ReturnStmt(new NameExpr(String.format("%s_%s", name, suffix)))
+        ));
+    }
 
     public Type type() {
         return type;
     }
 
-    public MethodDeclaration getter() {
-        return getter;
-    }
-
-    public FieldDeclaration field() {
-        return field;
-    }
-
-    public Parameter parameter() {
-        return parameter;
-    }
-
-    public ExpressionStmt assignment() {
-        return assignment;
-    }
-
-    public StringLiteralExpr literal() {
-        return literal;
-    }
-
-    public FieldAccessExpr access() {
-        return access;
-    }
-
-    private FieldDeclaration makeField() {
+    private FieldDeclaration field() {
         return new FieldDeclaration(
                 EnumSet.of(Modifier.FINAL, Modifier.PRIVATE),
                 type,
                 name);
     }
 
-    private MethodDeclaration makeGetter() {
+    private MethodDeclaration getter() {
         BlockStmt body = new BlockStmt(new NodeList<>(new ReturnStmt(
                 new FieldAccessExpr(new ThisExpr(), name))));
         return new MethodDeclaration(
@@ -104,14 +90,14 @@ public class FieldProcessor {
                 .setBody(body);
     }
 
-    private ExpressionStmt makeAssignment() {
+    private ExpressionStmt assignment() {
         return new ExpressionStmt(new AssignExpr(
                 new FieldAccessExpr(new ThisExpr(), name),
                 new NameExpr(name),
                 AssignExpr.Operator.ASSIGN));
     }
 
-    private MethodDeclaration makeSetter() {
+    private MethodDeclaration setter() {
         AssignExpr assignExpr = new AssignExpr(
                 new FieldAccessExpr(new ThisExpr(), name),
                 new NameExpr(name),
@@ -124,9 +110,5 @@ public class FieldProcessor {
                 Fields.setterNameOf(name))
                 .addParameter(type, name)
                 .setBody(body);
-    }
-
-    public boolean isStructure() {
-        return this.isStructure;
     }
 }

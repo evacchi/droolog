@@ -36,7 +36,6 @@ public class DroologProcessor extends AbstractProcessor {
         Filer f = processingEnv.getFiler();
         CompilationUnitProcessor cup = new CompilationUnitProcessor(f);
         ObjectProcessor objectProcessor = new ObjectProcessor();
-        MetaProcessor metaProcessor = new MetaProcessor();
 
         for (TypeElement annotation : annotations) {
             Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(annotation);
