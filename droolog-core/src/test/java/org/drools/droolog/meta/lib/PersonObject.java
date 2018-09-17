@@ -1,8 +1,6 @@
-package org.drools.droolog.meta;
+package org.drools.droolog.meta.lib;
 
 import java.util.Objects;
-
-import org.drools.droolog.meta.lib.Generated;
 
 // this is the public interface (with getters/setters)
 @Generated

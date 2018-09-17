@@ -1,4 +1,4 @@
-package org.drools.droolog.meta;
+package org.drools.droolog.meta.lib;
 
 import org.drools.droolog.meta.lib.ObjectTerm;
 

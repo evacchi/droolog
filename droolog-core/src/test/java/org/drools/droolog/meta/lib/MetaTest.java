@@ -1,6 +1,6 @@
-package org.drools.droolog.meta;
+package org.drools.droolog.meta.lib;
 
-import org.junit.Assert;
+import org.drools.droolog.meta.Unification;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
