@@ -1,4 +1,4 @@
-package org.drools.droolog.examples;
+package org.drools.droolog.meta.lib4;
 
 import org.drools.droolog.meta.lib4.TermState;
 

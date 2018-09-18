@@ -1,5 +1,7 @@
 package org.drools.droolog.examples;
 
+import org.drools.droolog.meta.lib4.Structure;
+
 //@Metable
 public class Person implements Structure<Person> {
     private Person_ meta = new Person_();

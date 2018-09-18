@@ -1,5 +1,6 @@
 package org.drools.droolog.examples;
 
+import org.drools.droolog.meta.lib4.Structure;
 import org.drools.droolog.meta.lib4.TermState;
 
 public class Person_ implements Structure.Meta<Person> {

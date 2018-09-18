@@ -1,62 +1,52 @@
 package org.drools.droolog.meta.lib4;
 
-import org.drools.droolog.meta.lib.Term;
+import org.drools.droolog.meta.lib4.Structure;
+import org.drools.droolog.meta.lib4.TermState;
 
-public class Unification {
+public class Unification<T> {
 
-    public void unify(Term.Structure left, Term.Structure right) {
+    public static <T> Unification<T> of(Structure<T> leftStructure, Structure<T> rightStructure) {
+        return new Unification<>(leftStructure, rightStructure);
+    }
+
+    private T result;
+    Unification(Structure<T> leftStructure, Structure<T> rightStructure) {
+        result = unify(leftStructure, rightStructure);
+    }
+
+    public T structure() {
+        return result;
+    }
+
+    private static <T> T unify(Structure<T> leftStructure, Structure<T> rightStructure) {
+        Structure.Meta<T> left = leftStructure.meta(), right = rightStructure.meta();
         if (left.size() != right.size()) {
             throw new IllegalArgumentException();
         }
-        for (int i = 0; i < left.size(); i++) {
-            Term lt = left.term(i), rt = right.term(i);
-            if (lt instanceof Term.Atom && rt instanceof Term.Atom) {
+        Structure.Factory<T> f = left.structure();
+
+        Object[] groundTerms = new Object[right.size()];
+        for (int i = 0; i < right.size(); i++) {
+            TermState lt = left.getTermState(i), rt = right.getTermState(i);
+            if (lt == TermState.Ground && rt == TermState.Ground) {
                 if (!lt.equals(rt)) throw new IllegalArgumentException();
-            } else if (lt instanceof Term.Atom && rt instanceof Term.Variable) {
-                copyAtom((Term.Atom) lt, right, i);
-            } else if (lt instanceof Term.Variable && rt instanceof Term.Atom) {
-                copyAtom((Term.Atom) rt, left, i);
-            } else if (lt instanceof Term.Structure && rt instanceof Term.Variable) {
-                copyCompound((Term.Structure) lt, right, i);
-            } else if (lt instanceof Term.Variable && rt instanceof Term.Structure) {
-                copyCompound((Term.Structure) rt, left, i);
-            } else if (lt instanceof Term.Variable && rt instanceof Term.Variable) {
-                Term.Atom la = createAtom((Term.Variable) lt, left, i);
-                Term.Atom ra = createAtom((Term.Variable) rt, right, i);
-                // we set both "manually" to an arbitrary valid value
-                la.setValue(ra.getValue());
+            } else if (lt == TermState.Ground && rt == TermState.Free) {
+                Object v = f.valueAt(leftStructure, i);
+                groundTerms[i] = v;
+
+            } else if (lt == TermState.Free && rt == TermState.Ground) {
+                Object v = f.valueAt(rightStructure, i);
+                groundTerms[i] = v;
+            } else if (lt == TermState.Free && rt == TermState.Free) {
+
+                /// todo also recursive
             } else {
                 throw new UnsupportedOperationException();
             }
         }
+
+         return f.of(groundTerms);
     }
 
-    private void copyCompound(Term.Structure structure, Term.Structure parent, int index) {
-        // fixme not working/tested yet
-        Term.Meta<?,?,?> meta = structure.meta();
-        Term.Structure s = meta.createStructure();
-        s.bind(parent.parentObject());
-        for (int i = 0; i < structure.size(); i++) {
-            structure.term(i, meta.createVariable());
-        }
-        parent.term(index, s);
-
-    }
-
-    private Term.Atom createAtom(Term.Variable variable, Term.Structure structure, int index) {
-        Term.Meta<?,?,?> meta = structure.meta();
-        Term.Atom a1 = meta.createAtom(variable);
-        a1.bind(structure.parentObject());
-        structure.term(index, a1);
-        return a1;
-    }
-
-    private void copyAtom(Term.Atom atom, Term.Structure term, int index) {
-        Term.Meta<?,?,?> meta = term.meta();
-        Term.Atom copy = meta.createAtom(atom);
-        copy.bind(term.parentObject());
-        copy.setValue(atom.getValue());
-        term.term(index, copy);
-    }
 }
 

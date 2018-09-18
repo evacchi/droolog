@@ -1,5 +1,7 @@
 package org.drools.droolog.examples;
 
+import org.drools.droolog.meta.lib4.Structure;
+
 import static org.drools.droolog.examples.Person_.*;
 
 public class Person__ implements Structure.Factory<Person> {

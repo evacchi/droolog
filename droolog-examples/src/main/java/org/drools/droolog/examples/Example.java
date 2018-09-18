@@ -1,5 +1,8 @@
 package org.drools.droolog.examples;
 
+import org.drools.droolog.meta.lib4.Structure;
+import org.drools.droolog.meta.lib4.Unification;
+
 import static org.drools.droolog.examples.Person_.*;
 import static org.drools.droolog.meta.lib4.TermState.*;
 
@@ -14,7 +17,7 @@ public class Example {
         Structure.Meta<Person> p2Meta = p2.meta();
         p2Meta.setTermState(name, Free);
 
-        Person r = new Unification<>(p1, p2).structure();
+        Person r = Unification.of(p1, p2).structure();
 
         System.out.println(p1);
         System.out.println(p2);
