@@ -1,12 +1,21 @@
 package org.drools.droolog.examples;
 
-import org.drools.droolog.meta.lib.Meta;
-
 //@Metable
-public class Person {
-    @Meta Person_ meta = new Person_(this);
-    String name;
-    Integer age;
+public class Person implements Structure<Person> {
+    private Person_ meta = new Person_();
+
+    @Override
+    public Meta<Person> meta() {
+        return meta;
+    }
+
+    private final String name;
+    private final Integer age;
+
+    public Person(String name, Integer age) {
+        this.name = name;
+        this.age = age;
+    }
 
     public String name() {
         return name;

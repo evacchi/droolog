@@ -2,25 +2,22 @@ package org.drools.droolog.examples;
 
 import org.drools.droolog.meta.lib4.TermState;
 
-public class Person_ {
+public class Person_ implements Structure.Meta<Person> {
 
     public static final int name = 0;
 
     public static final int age = 1;
 
-    public static final int structureSize = 2;
-
-    private Person parent;
-
-    private org.drools.droolog.meta.lib4.TermState name_term = org.drools.droolog.meta.lib4.TermState.Free;
-
-    private org.drools.droolog.meta.lib4.TermState age_term = org.drools.droolog.meta.lib4.TermState.Free;
-
-    public Person_(Person parent) {
-        this.parent = parent;
+    @Override
+    public int size() {
+        return 2;
     }
 
-    public org.drools.droolog.meta.lib4.TermState getTerm(int index) {
+    private TermState name_term = TermState.Ground;
+
+    private TermState age_term = TermState.Ground;
+
+    public TermState getTermState(int index) {
         switch(index) {
             case name:
                 return name_term;
@@ -31,7 +28,7 @@ public class Person_ {
         }
     }
 
-    public void setTerm(int index, TermState value) {
+    public void setTermState(int index, TermState value) {
         switch(index) {
             case name:
                 name_term = value;
@@ -44,28 +41,7 @@ public class Person_ {
         }
     }
 
-    public void setValue(int index, Object value) {
-        switch(index) {
-            case name:
-                parent.name = (String) value;
-                break;
-            case age:
-                parent.age = (Integer) value;
-                break;
-            default:
-                throw new IllegalArgumentException();
-        }
-
-    }
-
-    public Object getValue(int index) {
-        switch(index) {
-            case name:
-                return parent.name;
-            case age:
-                return parent.age;
-            default:
-                throw new IllegalArgumentException();
-        }
+    public Structure.Factory<Person> structure() {
+        return Person__.Instance;
     }
 }
