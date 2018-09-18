@@ -7,7 +7,7 @@ public class Person_ implements Structure.Meta<Person> {
 
     public static final int name = 0;
 
-    public static final int age = 1;
+    public static final int address = 1;
 
     @Override
     public int size() {
@@ -16,14 +16,14 @@ public class Person_ implements Structure.Meta<Person> {
 
     private TermState name_term = TermState.Ground;
 
-    private TermState age_term = TermState.Ground;
+    private TermState address_term = TermState.Structure;
 
     public TermState getTermState(int index) {
         switch(index) {
             case name:
                 return name_term;
-            case age:
-                return age_term;
+            case address:
+                return address_term;
             default:
                 throw new IllegalArgumentException();
         }
@@ -34,8 +34,8 @@ public class Person_ implements Structure.Meta<Person> {
             case name:
                 name_term = value;
                 break;
-            case age:
-                age_term = value;
+            case address:
+                address_term = value;
                 break;
             default:
                 throw new IllegalArgumentException();

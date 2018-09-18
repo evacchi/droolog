@@ -1,21 +1,20 @@
 package org.drools.droolog.examples;
 
-import org.drools.droolog.meta.lib4.Structure;
 import org.drools.droolog.meta.lib4.Unification;
 
+import static org.drools.droolog.examples.Address_.*;
 import static org.drools.droolog.examples.Person_.*;
 import static org.drools.droolog.meta.lib4.TermState.*;
 
 public class Example {
 
     public static void main(String[] args) {
-        Person p1 = new Person("paul", null);
-        Structure.Meta<Person> p1Meta = p1.meta();
-        p1Meta.setTermState(age, Free); // default is ground
+        Person p1 = new Person("Paul", new Address(null, "Liverpool"));
+        p1.address().meta().setTermState(street, Free);
 
-        Person p2 = new Person(null, 50);
-        Structure.Meta<Person> p2Meta = p2.meta();
-        p2Meta.setTermState(name, Free);
+        Person p2 = new Person(null, new Address("20 Forthlin Road", null));
+        p2.meta().setTermState(name, Free);
+        p2.address().meta().setTermState(city, Free);
 
         Person r = Unification.of(p1, p2).structure();
 

@@ -1,12 +1,10 @@
 package org.drools.droolog.meta.lib4;
 
-import org.drools.droolog.meta.lib4.TermState;
-
-public interface Structure<T> {
+public interface Structure<T extends Structure<T>> {
 
     Meta<T> meta();
 
-    interface Meta<T> {
+    interface Meta<T extends Structure<T>> {
 
         TermState getTermState(int index);
 
@@ -17,10 +15,12 @@ public interface Structure<T> {
         int size();
     }
 
-    interface Factory<T> {
+    interface Factory<T extends Structure<T>> {
         Object valueAt(Object o, int index);
 
         T of(Object... terms);
+
+        T variable();
 
     }
 }

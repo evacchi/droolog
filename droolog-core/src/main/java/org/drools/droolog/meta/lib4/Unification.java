@@ -1,11 +1,9 @@
 package org.drools.droolog.meta.lib4;
 
-import org.drools.droolog.meta.lib4.Structure;
-import org.drools.droolog.meta.lib4.TermState;
 
-public class Unification<T> {
+public class Unification<T extends Structure<T>> {
 
-    public static <T> Unification<T> of(Structure<T> leftStructure, Structure<T> rightStructure) {
+    public static <T extends Structure<T>> Unification<T> of(Structure<T> leftStructure, Structure<T> rightStructure) {
         return new Unification<>(leftStructure, rightStructure);
     }
 
@@ -18,7 +16,7 @@ public class Unification<T> {
         return result;
     }
 
-    private static <T> T unify(Structure<T> leftStructure, Structure<T> rightStructure) {
+    private static <T extends Structure<T>> T unify(Structure<T> leftStructure, Structure<T> rightStructure) {
         Structure.Meta<T> left = leftStructure.meta(), right = rightStructure.meta();
         if (left.size() != right.size()) {
             throw new IllegalArgumentException();
@@ -28,18 +26,20 @@ public class Unification<T> {
         Object[] groundTerms = new Object[right.size()];
         for (int i = 0; i < right.size(); i++) {
             TermState lt = left.getTermState(i), rt = right.getTermState(i);
-            if (lt == TermState.Ground && rt == TermState.Ground) {
+            if (lt.isGround() && rt.isGround()) {
                 if (!lt.equals(rt)) throw new IllegalArgumentException();
-            } else if (lt == TermState.Ground && rt == TermState.Free) {
-                Object v = f.valueAt(leftStructure, i);
-                groundTerms[i] = v;
-
-            } else if (lt == TermState.Free && rt == TermState.Ground) {
-                Object v = f.valueAt(rightStructure, i);
-                groundTerms[i] = v;
-            } else if (lt == TermState.Free && rt == TermState.Free) {
-
-                /// todo also recursive
+            } else if (lt.isGround() && rt.isVariable()) {
+                groundTerms[i] = f.valueAt(leftStructure, i);
+            } else if (lt.isVariable() && rt.isGround()) {
+                groundTerms[i] = f.valueAt(rightStructure, i);
+            } else if (lt.isVariable() && rt.isStructure()) {
+                Structure s = (Structure) f.valueAt(rightStructure, i);
+                Structure v = s.meta().structure().variable();
+                groundTerms[i] = unify(s, v);
+            } else if (lt.isStructure() && rt.isStructure()) {
+                groundTerms[i] = unify((Structure) f.valueAt(leftStructure, i), (Structure) f.valueAt(rightStructure, i));
+            } else if (lt.isVariable() && rt.isVariable()) {
+                /// todo
             } else {
                 throw new UnsupportedOperationException();
             }

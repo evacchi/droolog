@@ -12,26 +12,26 @@ public class Person implements Structure<Person> {
     }
 
     private final String name;
-    private final Integer age;
+    private final Address address;
 
-    public Person(String name, Integer age) {
+    public Person(String name, Address address) {
         this.name = name;
-        this.age = age;
+        this.address = address;
     }
 
     public String name() {
         return name;
     }
 
-    public Integer age() {
-        return age;
+    public Address address() {
+        return address;
     }
 
     @Override
     public String toString() {
         return "Person{" +
                 "name='" + name + '\'' +
-                ", age=" + age +
+                ", address=" + address +
                 '}';
     }
 }
