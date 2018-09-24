@@ -25,7 +25,7 @@ import com.github.javaparser.ast.stmt.ThrowStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.type.Type;
-import org.drools.droolog.meta.lib.Meta;
+import org.drools.droolog.examples.v4.Meta;
 import org.drools.droolog.meta.lib4.TermState;
 
 public class ObjectProcessor {

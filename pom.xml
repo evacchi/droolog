@@ -13,6 +13,7 @@
       <module>droolog-core</module>
       <module>droolog-annotation-processor</module>
       <module>droolog-examples</module>
+      <module>droolog-microbench</module>
     </modules>
 
 

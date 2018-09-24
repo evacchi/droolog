@@ -1,23 +1,19 @@
-package org.drools.droolog.examples;
+package org.drools.droolog.examples.v4;
 
 import org.drools.droolog.meta.lib4.Structure;
 import org.drools.droolog.meta.lib4.TermState;
-
-import static org.drools.droolog.examples.Address_.city;
-import static org.drools.droolog.examples.Address_.street;
 
 public class Address__ implements Structure.Factory<Address> {
 
     final static Address__ Instance = new Address__();
 
     @Override
-    public Object valueAt(Object o, int index) {
-        Address a = (Address) o;
+    public Object valueAt(Address o, int index) {
         switch (index) {
-            case street:
-                return a.street();
-            case city:
-                return a.city();
+            case Address_.street:
+                return o.street();
+            case Address_.city:
+                return o.city();
             default:
                 throw new IllegalArgumentException();
         }
@@ -31,8 +27,8 @@ public class Address__ implements Structure.Factory<Address> {
     @Override
     public Address variable() {
         Address address = new Address(null, null);
-        address.meta().setTermState(street, TermState.Free);
-        address.meta().setTermState(city, TermState.Free);
+        address.meta().setTermState(Address_.street, TermState.Free);
+        address.meta().setTermState(Address_.city, TermState.Free);
         return address;
     }
 }

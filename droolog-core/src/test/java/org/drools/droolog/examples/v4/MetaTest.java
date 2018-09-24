@@ -1,4 +1,4 @@
-package org.drools.droolog.meta.lib;
+package org.drools.droolog.examples.v4;
 
 import org.drools.droolog.meta.Unification;
 import org.junit.Test;

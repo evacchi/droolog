@@ -16,7 +16,7 @@ public interface Structure<T extends Structure<T>> {
     }
 
     interface Factory<T extends Structure<T>> {
-        Object valueAt(Object o, int index);
+        Object valueAt(T o, int index);
 
         T of(Object... terms);
 

@@ -1,21 +1,20 @@
-package org.drools.droolog.examples;
+package org.drools.droolog.examples.v4;
 
 import org.drools.droolog.meta.lib4.Structure;
 import org.drools.droolog.meta.lib4.TermState;
 
-import static org.drools.droolog.examples.Person_.*;
+import static org.drools.droolog.examples.v4.Person_.*;
 
 public class Person__ implements Structure.Factory<Person> {
 
     static final Person__ Instance = new Person__();
 
-    public Object valueAt(Object o, int index) {
-        Person p = (Person) o;
+    public Object valueAt(Person o, int index) {
         switch(index) {
             case name:
-                return p.name();
+                return o.name();
             case address:
-                return p.address();
+                return o.address();
             default:
                 throw new IllegalArgumentException();
         }

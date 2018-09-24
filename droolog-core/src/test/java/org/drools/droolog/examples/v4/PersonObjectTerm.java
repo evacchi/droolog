@@ -1,4 +1,4 @@
-package org.drools.droolog.meta.lib;
+package org.drools.droolog.examples.v4;
 
 // the private/internal interface with the getters for structure representation
 @Generated

@@ -29,15 +29,15 @@ public class Unification<T extends Structure<T>> {
             if (lt.isGround() && rt.isGround()) {
                 if (!lt.equals(rt)) throw new IllegalArgumentException();
             } else if (lt.isGround() && rt.isVariable()) {
-                groundTerms[i] = f.valueAt(leftStructure, i);
+                groundTerms[i] = f.valueAt((T) leftStructure, i);
             } else if (lt.isVariable() && rt.isGround()) {
-                groundTerms[i] = f.valueAt(rightStructure, i);
+                groundTerms[i] = f.valueAt((T) rightStructure, i);
             } else if (lt.isVariable() && rt.isStructure()) {
-                Structure s = (Structure) f.valueAt(rightStructure, i);
+                Structure s = (Structure) f.valueAt((T) rightStructure, i);
                 Structure v = s.meta().structure().variable();
                 groundTerms[i] = unify(s, v);
             } else if (lt.isStructure() && rt.isStructure()) {
-                groundTerms[i] = unify((Structure) f.valueAt(leftStructure, i), (Structure) f.valueAt(rightStructure, i));
+                groundTerms[i] = unify((Structure) f.valueAt((T) leftStructure, i), (Structure) f.valueAt((T) rightStructure, i));
             } else if (lt.isVariable() && rt.isVariable()) {
                 /// todo
             } else {
