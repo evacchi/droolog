@@ -1,4 +1,4 @@
-package org.drools.droolog.meta.lib;
+package org.drools.droolog.meta.lib.v1;
 
 public abstract class AbstractTerm<T extends Term.ObjectTerm> implements Term {
     int index = -1;

@@ -1,4 +1,4 @@
-package org.drools.droolog.processor;
+package org.drools.droolog.processor.v1;
 
 import java.util.EnumSet;
 
@@ -12,7 +12,7 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
-import org.drools.droolog.meta.lib.AbstractMeta;
+import org.drools.droolog.meta.lib.v1.AbstractMeta;
 
 import static com.github.javaparser.ast.Modifier.FINAL;
 import static com.github.javaparser.ast.Modifier.PUBLIC;

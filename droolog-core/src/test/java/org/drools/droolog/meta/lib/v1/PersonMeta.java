@@ -1,11 +1,4 @@
-package org.drools.droolog.meta;
-
-import org.drools.droolog.meta.lib.AbstractAtom;
-import org.drools.droolog.meta.lib.AbstractMeta;
-import org.drools.droolog.meta.lib.AbstractStructure;
-import org.drools.droolog.meta.lib.AbstractTerm;
-import org.drools.droolog.meta.lib.Generated;
-import org.drools.droolog.meta.lib.Term;
+package org.drools.droolog.meta.lib.v1;
 
 @Generated
 final class PersonMeta extends AbstractMeta<

@@ -1,6 +1,7 @@
-package org.drools.droolog.examples;
+package org.drools.droolog.examples.v1;
 
-import org.drools.droolog.meta.Unification;
+import org.drools.droolog.examples.v1.PersonMeta;
+import org.drools.droolog.meta.lib.v1.Unification;
 
 public class Example {
 

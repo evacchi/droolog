@@ -1,4 +1,4 @@
-package org.drools.droolog.processor;
+package org.drools.droolog.processor.v1;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -30,7 +30,7 @@ import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.TypeParameter;
-import org.drools.droolog.meta.lib.AbstractStructure;
+import org.drools.droolog.meta.lib.v1.AbstractStructure;
 
 public class MetaStructureProcessor extends AbstractClassProcessor {
 
@@ -96,12 +96,12 @@ public class MetaStructureProcessor extends AbstractClassProcessor {
                 .setBody(new BlockStmt(new NodeList<>(new ExpressionStmt(
                         new MethodCallExpr("super",
                                            new ArrayCreationExpr()
-                                                   .setElementType("org.drools.droolog.meta.lib.Term[]")
+                                                   .setElementType("org.drools.droolog.meta.lib.v1.Term[]")
                                                    .setInitializer(new ArrayInitializerExpr(nodes)))))));
     }
 
     private MethodDeclaration makeTermsSetter(String meta, List<VariableElement> fields) {
-        Type termT = JavaParser.parseType("org.drools.droolog.meta.lib.Term");
+        Type termT = JavaParser.parseType("org.drools.droolog.meta.lib.v1.Term");
         MethodDeclaration m = new MethodDeclaration(
                 EnumSet.of(Modifier.PUBLIC),
                 new ClassOrInterfaceType(new ClassOrInterfaceType(null, meta), "Structure"),

@@ -1,4 +1,4 @@
-package org.drools.droolog.processor;
+package org.drools.droolog.processor.v1;
 
 class Fields {
 

@@ -1,7 +1,4 @@
-package org.drools.droolog.meta;
-
-import org.drools.droolog.meta.lib.Generated;
-import org.drools.droolog.meta.lib.Term;
+package org.drools.droolog.meta.lib.v1;
 
 // the private/internal interface with the getters for structure representation
 @Generated

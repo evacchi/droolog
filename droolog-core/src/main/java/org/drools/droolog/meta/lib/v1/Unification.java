@@ -1,6 +1,4 @@
-package org.drools.droolog.meta;
-
-import org.drools.droolog.meta.lib.Term;
+package org.drools.droolog.meta.lib.v1;
 
 public class Unification {
 

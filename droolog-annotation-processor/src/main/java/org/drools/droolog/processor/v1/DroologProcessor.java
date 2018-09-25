@@ -1,4 +1,4 @@
-package org.drools.droolog.processor;
+package org.drools.droolog.processor.v1;
 
 import java.util.Set;
 
@@ -18,7 +18,7 @@ import javax.lang.model.element.TypeElement;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.google.auto.service.AutoService;
 
-@SupportedAnnotationTypes("org.drools.droolog.meta.lib.ObjectTerm")
+@SupportedAnnotationTypes("org.drools.droolog.meta.lib.v1.ObjectTerm")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(Processor.class)
 public class DroologProcessor extends AbstractProcessor {

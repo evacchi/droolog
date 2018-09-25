@@ -1,4 +1,4 @@
-package org.drools.droolog.meta.lib;
+package org.drools.droolog.meta.lib.v1;
 
 public abstract class AbstractMeta<A extends Term.Atom, V extends Term.Variable, S extends Term.Structure> implements Term.Meta<A,V,S> {
 

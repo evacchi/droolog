@@ -1,4 +1,4 @@
-package org.drools.droolog.processor;
+package org.drools.droolog.processor.v1;
 
 import java.util.EnumSet;
 
@@ -13,8 +13,8 @@ import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
-import org.drools.droolog.meta.lib.AbstractTerm;
-import org.drools.droolog.meta.lib.Term;
+import org.drools.droolog.meta.lib.v1.AbstractTerm;
+import org.drools.droolog.meta.lib.v1.Term;
 
 public class MetaVariableProcessor extends AbstractClassProcessor {
 

@@ -1,4 +1,4 @@
-package org.drools.droolog.processor;
+package org.drools.droolog.processor.v1;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -31,7 +31,7 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.TypeParameter;
 import com.github.javaparser.ast.type.VoidType;
-import org.drools.droolog.meta.lib.AbstractAtom;
+import org.drools.droolog.meta.lib.v1.AbstractAtom;
 
 public class MetaAtomProcessor extends AbstractClassProcessor {
 
