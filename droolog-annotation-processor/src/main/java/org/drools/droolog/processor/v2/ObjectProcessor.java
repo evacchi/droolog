@@ -1,4 +1,4 @@
-package org.drools.droolog.processor;
+package org.drools.droolog.processor.v2;
 
 import java.util.ArrayList;
 import java.util.EnumSet;

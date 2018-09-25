@@ -1,4 +1,4 @@
-package org.drools.droolog.meta.lib2;
+package org.drools.droolog.meta.lib.v2;
 
 import java.util.Objects;
 

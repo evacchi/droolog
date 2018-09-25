@@ -1,4 +1,4 @@
-package org.drools.droolog.processor;
+package org.drools.droolog.processor.v2;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -34,7 +34,7 @@ import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
-import org.drools.droolog.meta.lib2.Term;
+import org.drools.droolog.meta.lib.v2.Term;
 
 import static com.github.javaparser.ast.Modifier.FINAL;
 import static com.github.javaparser.ast.Modifier.PRIVATE;

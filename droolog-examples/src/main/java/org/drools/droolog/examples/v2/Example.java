@@ -1,10 +1,11 @@
-package org.drools.droolog.examples;
+package org.drools.droolog.examples.v2;
 
-import org.drools.droolog.meta.lib2.Term;
-import org.drools.droolog.meta.lib2.Unification;
+import org.drools.droolog.examples.v2.Person;
+import org.drools.droolog.meta.lib.v2.Term;
+import org.drools.droolog.meta.lib.v2.Unification;
 
-import static org.drools.droolog.meta.lib2.Term.atom;
-import static org.drools.droolog.meta.lib2.Term.variable;
+import static org.drools.droolog.meta.lib.v2.Term.atom;
+import static org.drools.droolog.meta.lib.v2.Term.variable;
 
 public class Example {
 
