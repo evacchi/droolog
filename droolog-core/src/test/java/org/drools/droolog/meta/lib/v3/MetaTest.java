@@ -1,8 +1,8 @@
-package org.drools.droolog.meta.lib3;
+package org.drools.droolog.meta.lib.v3;
 
 import org.junit.Test;
 
-import static org.drools.droolog.meta.lib3.Term.*;
+import static org.drools.droolog.meta.lib.v3.Term.*;
 import static org.junit.Assert.assertEquals;
 
 public class MetaTest {

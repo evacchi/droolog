@@ -1,9 +1,8 @@
-package org.drools.droolog.examples;
+package org.drools.droolog.examples.v3;
 
 import org.drools.droolog.meta.lib4.Unification;
 
-import static org.drools.droolog.examples.Address_.*;
-import static org.drools.droolog.examples.Person_.*;
+import static org.drools.droolog.examples.v3.Address_.*;
 import static org.drools.droolog.meta.lib4.TermState.*;
 
 public class Example {
@@ -13,7 +12,7 @@ public class Example {
         p1.address().meta().setTermState(street, Free);
 
         Person p2 = new Person(null, new Address("20 Forthlin Road", null));
-        p2.meta().setTermState(name, Free);
+        p2.meta().setTermState(Person_.name, Free);
         p2.address().meta().setTermState(city, Free);
 
         Person r = Unification.of(p1, p2).structure();

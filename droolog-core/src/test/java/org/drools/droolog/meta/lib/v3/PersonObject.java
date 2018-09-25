@@ -1,8 +1,8 @@
-package org.drools.droolog.meta.lib3;
+package org.drools.droolog.meta.lib.v3;
 
 import java.util.Objects;
 
-import static org.drools.droolog.meta.lib3.Term.*;
+import static org.drools.droolog.meta.lib.v3.Term.*;
 
 public class PersonObject implements Person, Term.Structure<Person> {
 
@@ -42,9 +42,9 @@ public class PersonObject implements Person, Term.Structure<Person> {
     @Override
     public Term<?>[] terms() {
         return new Term<?>[]{
-                Term.of(this.getClass(), Type.Atom),
-                Term.of(name, nameType),
-                Term.of(age, ageType)
+                of(this.getClass(), Type.Atom),
+                of(name, nameType),
+                of(age, ageType)
         };
     }
 

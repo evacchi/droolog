@@ -1,4 +1,4 @@
-package org.drools.droolog.meta.lib3;
+package org.drools.droolog.meta.lib.v3;
 
 public interface Term<T> {
 

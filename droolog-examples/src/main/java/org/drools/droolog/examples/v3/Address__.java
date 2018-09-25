@@ -1,10 +1,10 @@
-package org.drools.droolog.examples;
+package org.drools.droolog.examples.v3;
 
 import org.drools.droolog.meta.lib4.Structure;
 import org.drools.droolog.meta.lib4.TermState;
 
-import static org.drools.droolog.examples.Address_.city;
-import static org.drools.droolog.examples.Address_.street;
+import static org.drools.droolog.examples.v3.Address_.city;
+import static org.drools.droolog.examples.v3.Address_.street;
 
 public class Address__ implements Structure.Factory<Address> {
 
