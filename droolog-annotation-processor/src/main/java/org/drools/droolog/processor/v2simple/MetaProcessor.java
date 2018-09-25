@@ -71,7 +71,8 @@ public class MetaProcessor {
                 classAtomField(el),
                 structureFactory(el),
                 classFactory(el),
-                structureConverter(el)
+                fieldsToStructure(el),
+                objectToStructure(el)
         );
     }
 
@@ -154,7 +155,7 @@ public class MetaProcessor {
         return md;
     }
 
-    private MethodDeclaration structureConverter(Element el) {
+    private MethodDeclaration fieldsToStructure(Element el) {
         String interfaceName = el.getSimpleName().toString();
         ClassOrInterfaceType StructureT = structure()
                 .setTypeArguments(new ClassOrInterfaceType(null, interfaceName));
@@ -180,6 +181,41 @@ public class MetaProcessor {
                         new NodeList<>(arrayCreationExpr))))));
         return md;
     }
+
+    private MethodDeclaration objectToStructure(Element el) {
+        String interfaceName = el.getSimpleName().toString();
+        ClassOrInterfaceType ClassT = new ClassOrInterfaceType(null, interfaceName);
+        ClassOrInterfaceType StructureT = structure()
+                .setTypeArguments(ClassT);
+        MethodDeclaration md = new MethodDeclaration(
+                EnumSet.of(PUBLIC),
+                "of",
+                StructureT,
+                new NodeList<>(
+                        new Parameter(ClassT, "object")
+        ));
+
+        md.setBody(new BlockStmt(new NodeList<>(
+                new ReturnStmt(new MethodCallExpr("of").setArguments(
+                        new NodeList<>(termsFromValue(fieldProcessorsFor(el), "object")))))));
+        return md;
+    }
+
+    private NodeList<Expression> termsFromValue(List<FieldProcessor> fields, String objectVar) {
+        NodeList<Expression> parameters = new NodeList<>();
+        for (int i = 0; i < fields.size(); i++) {
+            FieldProcessor field = fields.get(i);
+            if (field.isStructure()) {
+                parameters.add(
+                        new MethodCallExpr(new FieldAccessExpr(new NameExpr(field.type().asString()+"Meta"), "Instance"), "of", new NodeList<>(new MethodCallExpr(new NameExpr(objectVar), field.name()))));
+            } else {
+                parameters.add(
+                        new MethodCallExpr(new NameExpr(Term.class.getCanonicalName()), "atom", new NodeList<>(new MethodCallExpr(new NameExpr(objectVar), field.name()))));
+            }
+        }
+        return parameters;
+    }
+
 
     private NodeList<Expression> valuesFromTerms(List<FieldProcessor> fields, String termsVar) {
         NodeList<Expression> parameters = new NodeList<>();
