@@ -5,7 +5,7 @@ import org.drools.droolog.meta.lib.v2.ObjectTerm;
 @ObjectTerm
 public interface Person {
     String firstName();
-    String secondName();
+    String lastName();
     @ObjectTerm
     Address address();
 }
