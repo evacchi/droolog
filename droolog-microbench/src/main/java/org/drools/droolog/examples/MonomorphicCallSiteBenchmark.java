@@ -24,6 +24,7 @@ import org.drools.droolog.examples.v2.Phone;
 import org.drools.droolog.examples.v2.PhoneMeta;
 import org.drools.droolog.examples.v3.Address;
 import org.drools.droolog.examples.v3.Person;
+import org.drools.droolog.meta.lib.v2.Term;
 import org.drools.droolog.meta.lib.v2.Term.Atom;
 import org.drools.droolog.meta.lib.v2.Term.Structure;
 import org.openjdk.jmh.annotations.*;
@@ -69,6 +70,7 @@ public class MonomorphicCallSiteBenchmark {
     Structure<PersonObject> p1 = person.of(paul, liverpool, number);
 
     Structure[] v2s = new Structure[NUM_REFS * 3];
+    Term[][] v2t = new Term[NUM_REFS * 3][];
 
     @Setup
     public void init() {
@@ -79,12 +81,16 @@ public class MonomorphicCallSiteBenchmark {
             v2s[i] = p1;
             v2s[i+1] = liverpool;
             v2s[i+2] = number;
+            v2t[i] = p1.terms;
+            v2t[i+1] = liverpool.terms;
+            v2t[i+2] = number.terms;
+
         }
     }
 
 
     @Benchmark
-    @CompilerControl(CompilerControl.Mode.EXCLUDE)
+    //@CompilerControl(CompilerControl.Mode.EXCLUDE)
     public void v2(Blackhole bh) {
         for (int i = 0; i < NUM_REFS * 2; i+=2) {
             bh.consume(v2s[i].term(0));
@@ -94,7 +100,27 @@ public class MonomorphicCallSiteBenchmark {
     }
 
     @Benchmark
-    @CompilerControl(CompilerControl.Mode.EXCLUDE)
+    //@CompilerControl(CompilerControl.Mode.EXCLUDE)
+    public void v2direct(Blackhole bh) {
+        for (int i = 0; i < NUM_REFS * 2; i+=2) {
+            bh.consume(v2t[i][0]);
+            bh.consume(v2t[i+1][0]);
+            bh.consume(v2t[i+2][0]);
+        }
+    }
+
+    @Benchmark
+    //@CompilerControl(CompilerControl.Mode.EXCLUDE)
+    public void v2unsafe(Blackhole bh) {
+        for (int i = 0; i < NUM_REFS * 2; i+=2) {
+            bh.consume(v2s[i].termRaw(0));
+            bh.consume(v2s[i+1].termRaw(0));
+            bh.consume(v2s[i+2].termRaw(0));
+        }
+    }
+
+    @Benchmark
+    //@CompilerControl(CompilerControl.Mode.EXCLUDE)
     public void v3(Blackhole bh) {
         for (int i = 0; i < NUM_REFS * 3; i+=3) {
             bh.consume(v3s[i].valueAt(v3, 0));

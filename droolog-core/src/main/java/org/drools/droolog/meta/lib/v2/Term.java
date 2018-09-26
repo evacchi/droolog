@@ -1,6 +1,10 @@
 package org.drools.droolog.meta.lib.v2;
 
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReferenceArray;
+
+import org.drools.droolog.meta.lib.UnsafeAccess;
+import sun.misc.Unsafe;
 
 public interface Term<T> {
 
@@ -31,15 +35,32 @@ public interface Term<T> {
     }
 
     class Underscore<T> extends Variable<T> {
+
         @Override
         public String toString() {
             return "_G@" + Integer.toHexString(hashCode());
         }
     }
 
-    final class Structure<T> implements Term<T> {
+    class Structure<T> implements Term<T> {
 
-        private final Term<?>[] terms;
+//        private static final long arrayFieldOffset;
+
+        private static final int base;
+
+        private static final int scale;
+        private static final Unsafe unsafe;
+
+        private static final int shift;
+
+        static {
+            unsafe = UnsafeAccess.UNSAFE;
+            base = unsafe.arrayBaseOffset(Object[].class);
+            scale = unsafe.arrayIndexScale(Object[].class);
+            shift = 31 - Integer.numberOfLeadingZeros(scale);
+        }
+
+        public final Term<?>[] terms;
 
         public Structure(int n) {
             this.terms = new Term<?>[n];
@@ -56,8 +77,21 @@ public interface Term<T> {
             return terms;
         }
 
+
         public Term<?> term(int i) {
             return terms[i];
+        }
+
+        public Term<?> termRaw(int i) {
+            return getRaw(byteOffset(i));
+        }
+
+        private static long byteOffset(int i) {
+            return ((long) i << shift) + base;
+        }
+
+        private Term<?> getRaw(long offset) {
+            return (Term<?>) unsafe.getObjectVolatile(terms, offset);
         }
 
         public int size() {
@@ -79,11 +113,12 @@ public interface Term<T> {
     public static <T> Term.Atom<T> atom(T value) {
         return new Term.Atom<>(value);
     }
+
     public static <T> Term.Variable<T> variable() {
         return new Term.Variable<>();
     }
+
     public static <T> Term.Variable<T> $() {
         return new Term.Underscore<>();
     }
-
 }

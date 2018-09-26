@@ -12,8 +12,8 @@
   <artifactId>droolog-microbench</artifactId>
 
   <properties>
-    <maven.compiler.source>10</maven.compiler.source>
-    <maven.compiler.target>10</maven.compiler.target>
+    <maven.compiler.source>1.9d</maven.compiler.source>
+    <maven.compiler.target>1.9</maven.compiler.target>
     <jmh-version>1.21</jmh-version>
   </properties>
 
