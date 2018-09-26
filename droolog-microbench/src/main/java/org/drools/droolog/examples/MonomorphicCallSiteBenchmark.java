@@ -84,7 +84,6 @@ public class MonomorphicCallSiteBenchmark {
 
 
     @Benchmark
-    @CompilerControl(CompilerControl.Mode.EXCLUDE)
     public void v2(Blackhole bh) {
         for (int i = 0; i < NUM_REFS * 2; i+=2) {
             bh.consume(v2s[i].term(0));
@@ -93,9 +92,30 @@ public class MonomorphicCallSiteBenchmark {
         }
     }
 
+
+
     @Benchmark
     @CompilerControl(CompilerControl.Mode.EXCLUDE)
+    public void v2_interpreted(Blackhole bh) {
+        for (int i = 0; i < NUM_REFS * 2; i+=2) {
+            bh.consume(v2s[i].term(0));
+            bh.consume(v2s[i+1].term(0));
+            bh.consume(v2s[i+2].term(0));
+        }
+    }
+
+    @Benchmark
     public void v3(Blackhole bh) {
+        for (int i = 0; i < NUM_REFS * 3; i+=3) {
+            bh.consume(v3s[i].valueAt(v3, 0));
+            bh.consume(v3s[i+1].valueAt(v3.address(), 0));
+            bh.consume(v3s[i+2].valueAt(v3.phone(), 0));
+        }
+    }
+
+    @Benchmark
+    @CompilerControl(CompilerControl.Mode.EXCLUDE)
+    public void v3_interpreted(Blackhole bh) {
         for (int i = 0; i < NUM_REFS * 3; i+=3) {
             bh.consume(v3s[i].valueAt(v3, 0));
             bh.consume(v3s[i+1].valueAt(v3.address(), 0));
