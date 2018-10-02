@@ -9,4 +9,5 @@ public class AddressMeta {
             city = 1;
 
     public int[] terms = { Ground, Ground };
+
 }

@@ -11,7 +11,7 @@ public class TermState {
     }
 
     public static int Structure(int size) {
-        return size;
+        return -size;
     }
 
     public static boolean isVar(int i) {
@@ -19,12 +19,14 @@ public class TermState {
     }
 
     public static boolean isStruct(int i) {
-        return i < -1;
+        return i < 0;
     }
 
     public static boolean isGround(int i) {
         return i == Ground;
     }
 
-
+    public int varCount() {
+        return nextVar;
+    }
 }

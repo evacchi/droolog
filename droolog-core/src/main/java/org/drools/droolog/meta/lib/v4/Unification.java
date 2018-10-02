@@ -1,10 +1,41 @@
 package org.drools.droolog.meta.lib.v4;
 
-import java.util.Arrays;
-
 import static org.drools.droolog.meta.lib.v4.TermState.isVar;
 
 public class Unification {
+
+    public static <T> Object[] values(Object[] left, Object[] right, int[] bindings) {
+        Object[] values = new Object[bindings.length];
+        for (int tidx = 0; tidx < bindings.length; tidx++) {
+            int binding = bindings[tidx];
+            if (binding < 0) {
+                values[tidx] = left[-binding-1];
+            } else if (binding > 0) {
+                values[tidx] = right[binding-1];
+            }
+        }
+        return values;
+    }
+
+
+    public static <T> Object[] values(Object[] left, Object[] right, int[] linearized, int[] bindings) {
+        Object[] values = new Object[linearized.length];
+        for (int tidx = 0; tidx < linearized.length; tidx++) {
+            int t = linearized[tidx];
+            if (isVar(t)) {
+                int binding = bindings[t];
+                if (binding < 0) {
+                    values[tidx] = left[-binding-1];
+                } else if (binding > 0) {
+                    values[tidx] = right[binding-1];
+                }
+            } else {
+                values[tidx] = left[tidx];
+            }
+        }
+        return values;
+    }
+
 
     public static int[] linearized(int[]... terms) {
         int len = 0;
@@ -13,25 +44,21 @@ public class Unification {
         }
         int[] linearized = new int[len];
 
-        int j = 0;
-        for (int[] ts : terms) {
-            for (int t : ts) {
-                linearized[j++] = t;
+        int k = 0;
+        for (int i = 0; i < terms.length; i++) {
+            int[] ts = terms[i];
+            for (int j = 0; j < ts.length; j++) {
+                int t = ts[j];
+                linearized[k++] = t;
             }
         }
         return linearized;
     }
 
-    private static int sizeOf(int t) {
-        return isVar(t) ? 1 : t;
-    }
-
-    public static int[] of(int[] left, int[] right) {
+    public static void of(int[] left, int[] right, int[] bindings) {
         if (left.length != right.length) {
             throw new IllegalArgumentException(String.format("length mismatch %d != %d", left.length, right.length));
         }
-        int size = 1+maxVar(left, right);
-        int[] bindings = new int[size];
         for (int i = 0; i < left.length; i++) {
             int l = left[i];
             int r = right[i];
@@ -52,19 +79,23 @@ public class Unification {
                 }
             }
         }
-        return bindings;
-    }
-
-    private static int groundLeft(int i) {
-        return i + 1;
     }
 
     private static int groundRight(int i) {
+        return i + 1;
+    }
+
+    private static int groundLeft(int i) {
         return -(i + 1);
     }
 
-    private static int maxVar(int[] left, int[] right) {
-        return Math.max(Arrays.stream(left).max().orElse(-1), Arrays.stream(right).max().orElse(-1));
+    public static void args(Object[] fields, int[] terms, Object[] vbindings) {
+        for (int i = 0; i < fields.length; i++) {
+            int t = terms[i];
+            if (isVar(t)) {
+                fields[i] = vbindings[t];
+            }
+        }
     }
 }
 
