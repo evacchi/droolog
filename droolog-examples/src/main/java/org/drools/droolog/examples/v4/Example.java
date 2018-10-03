@@ -1,7 +1,10 @@
-package org.drools.droolog.meta.lib.v4;
+package org.drools.droolog.examples.v4;
 
 import java.util.Arrays;
 
+import org.drools.droolog.meta.lib.v4.ArrayOps;
+import org.drools.droolog.meta.lib.v4.TermState;
+import org.drools.droolog.meta.lib.v4.Unification;
 import org.junit.Test;
 
 import static org.drools.droolog.meta.lib.v4.TermState.Ground;
@@ -10,14 +13,10 @@ import static org.junit.Assert.assertArrayEquals;
 
 public class Example {
 
-//    private static final int
-//            firstName = 1,
-//            lastName = 2,
-//            address = 3,
-//            street = 4,
-//            city = 5;
+    public static void main(String[] args) {
+        new Example().unify();
+    }
 
-    @Test
     public void unify() {
         TermState ts = new TermState();
         Person p1 = new Person("Paul", null, new Address(null, "Liverpool"));
@@ -62,9 +61,9 @@ public class Example {
 
         System.out.println(Arrays.toString(vbindings));
 
-        Person unified = PersonMeta.create(fp1);
+//        Person unified = PersonMeta.create(fp1);
 
-        System.out.println(unified);
+//        System.out.println(unified);
     }
 
     private int left(int i, int offset) {

@@ -1,12 +1,16 @@
-package org.drools.droolog.meta.lib.v4;
+package org.drools.droolog.examples.v4;
 
 import java.util.Objects;
 
+import org.drools.droolog.meta.lib.v4.ObjectTerm;
+
+@ObjectTerm
 public class Person {
     public final PersonMeta meta = new PersonMeta(this);
 
     private final String firstName;
     private final String lastName;
+    @ObjectTerm
     private final Address address;
 
     public Person(String firstName, String lastName, Address address) {

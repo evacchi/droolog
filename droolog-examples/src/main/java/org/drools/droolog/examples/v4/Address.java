@@ -1,7 +1,10 @@
-package org.drools.droolog.meta.lib.v4;
+package org.drools.droolog.examples.v4;
 
 import java.util.Objects;
 
+import org.drools.droolog.meta.lib.v4.ObjectTerm;
+
+@ObjectTerm
 public class Address {
 
     public final AddressMeta meta = new AddressMeta(this);

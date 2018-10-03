@@ -10,4 +10,13 @@ public class AddressMeta {
 
     public int[] terms = { Ground, Ground };
 
+    final Address address;
+
+    public AddressMeta(Address address) {
+        this.address = address;
+    }
+
+    public Object[] values() {
+        return ArrayOps.of(address.street(), address.city());
+    }
 }
