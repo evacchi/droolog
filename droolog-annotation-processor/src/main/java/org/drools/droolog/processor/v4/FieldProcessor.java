@@ -35,7 +35,10 @@ public class FieldProcessor {
     private final FieldAccessExpr access;
     private final boolean isStructure;
 
+    private final VariableElement element;
+
     public FieldProcessor(VariableElement field) {
+        this.element = field;
         this.name = field.getSimpleName().toString();
         TypeMirror typeMirror = field.asType();
         this.type = JavaParser.parseType(typeMirror.toString());
@@ -48,6 +51,10 @@ public class FieldProcessor {
         this.assignment = makeAssignment();
         this.literal = new StringLiteralExpr(name);
         this.access = new FieldAccessExpr(new ThisExpr(), name);
+    }
+
+    public VariableElement element() {
+        return element;
     }
 
     public String name() {

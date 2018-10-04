@@ -1,11 +1,14 @@
 package org.drools.droolog.processor.v4;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.util.ElementFilter;
+import javax.lang.model.util.SimpleTypeVisitor8;
 
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
@@ -16,19 +19,23 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.ArrayAccessExpr;
 import com.github.javaparser.ast.expr.ArrayInitializerExpr;
 import com.github.javaparser.ast.expr.AssignExpr;
+import com.github.javaparser.ast.expr.CastExpr;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.NullLiteralExpr;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import org.drools.droolog.meta.lib.v4.ArrayOps;
+import org.drools.droolog.meta.lib.v4.ObjectTerm;
 import org.drools.droolog.meta.lib.v4.TermState;
 
 import static com.github.javaparser.ast.Modifier.PUBLIC;
@@ -62,10 +69,60 @@ public class MetaProcessor {
                 makeField(el),
                 makeTerms(el),
                 makeConstructor(el),
-                makeValues(el)
+                makeValues(el),
+                makeFactory(el)
         );
 
         return nodes;
+    }
+
+    private BodyDeclaration<?> makeFactory(Element el) {
+        String name = el.getSimpleName().toString();
+        Expression expr = el.asType().accept(new ConstructorTypeVisitor(), 0);
+        return new MethodDeclaration(EnumSet.of(Modifier.PUBLIC, Modifier.STATIC), new ClassOrInterfaceType(name), "create")
+                .setParameters(new NodeList<>(
+                        new Parameter(new ClassOrInterfaceType("Object"), "args").setVarArgs(true)
+                ))
+                .setBody(
+                new BlockStmt(
+                        new NodeList<>(
+                                new ReturnStmt(
+                                        expr
+                                )
+                        )
+                )
+        );
+    }
+
+    private static Expression visitConstructor(String name, ExecutableElement el, int offset) {
+        NodeList<Expression> parameters = new NodeList<>();
+        List<? extends VariableElement> ps = el.getParameters();
+        int count = offset;
+        for (VariableElement v : ps) {
+            Expression r = v.asType().accept(new ConstructorTypeVisitor(), offset + ps.size());
+            if (r == null) {
+                parameters.add(
+                        new CastExpr(
+                                new ClassOrInterfaceType(v.asType().toString()),
+                                new ArrayAccessExpr(new NameExpr("args"), new IntegerLiteralExpr(count++))
+                        )
+                );
+            } else {
+                parameters.add(r);
+            }
+
+        }
+
+        return new ObjectCreationExpr(null, new ClassOrInterfaceType(name), parameters);
+    }
+
+    private static class ConstructorTypeVisitor extends SimpleTypeVisitor8<Expression, Integer> {
+
+        @Override
+        public Expression visitDeclared(DeclaredType t, Integer count) {
+            if (t.asElement().getAnnotation(ObjectTerm.class) == null) return null;
+            return visitConstructor(t.toString(), ElementFilter.constructorsIn(t.asElement().getEnclosedElements()).get(0), count);
+        }
     }
 
     private BodyDeclaration<?> makeValues(Element el) {
@@ -133,7 +190,7 @@ public class MetaProcessor {
                                        "terms", new ArrayInitializerExpr(nodes)));
     }
 
-    private List<FieldProcessor> fieldProcessorsFor(Element el) {
+    private static List<FieldProcessor> fieldProcessorsFor(Element el) {
         return ElementFilter.fieldsIn(el.getEnclosedElements())
                 .stream().map(FieldProcessor::new).collect(toList());
     }
