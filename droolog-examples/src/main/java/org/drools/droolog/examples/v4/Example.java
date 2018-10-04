@@ -5,11 +5,9 @@ import java.util.Arrays;
 import org.drools.droolog.meta.lib.v4.ArrayOps;
 import org.drools.droolog.meta.lib.v4.TermState;
 import org.drools.droolog.meta.lib.v4.Unification;
-import org.junit.Test;
 
 import static org.drools.droolog.meta.lib.v4.TermState.Ground;
 import static org.drools.droolog.meta.lib.v4.TermState.Structure;
-import static org.junit.Assert.assertArrayEquals;
 
 public class Example {
 
@@ -52,7 +50,7 @@ public class Example {
         };
         System.out.println(Arrays.toString(expected));
         System.out.println(Arrays.toString(bindings));
-        assertArrayEquals(expected, bindings);
+        assert Arrays.equals(expected, bindings);
 
         Object[] fp1 = p1.meta.values();
         Object[] fp2 = p2.meta.values();
@@ -61,6 +59,10 @@ public class Example {
 
         System.out.println(Arrays.toString(vbindings));
 
+        // FIXME can we codegen this?
+        // fp1 contains all of the values for constructing
+        // 1) person 2) address, which is nested
+        // how do we walk the **entire** POJO tree at annotation processing time?
 //        Person unified = PersonMeta.create(fp1);
 
 //        System.out.println(unified);
