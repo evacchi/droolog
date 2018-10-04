@@ -88,7 +88,7 @@ public class MetaProcessor {
         List<FieldProcessor> fps = fieldProcessorsFor(el);
         int count = 0;
         for (FieldProcessor fp : fps) {
-            if (fp.type().asString().equals(metaName(el))) {
+            if (fp.name().equals("meta")) {
                 continue;
             }
             fieldDeclarations.add(new VariableDeclarator(PrimitiveType.intType(), fp.name(), new IntegerLiteralExpr(count)));

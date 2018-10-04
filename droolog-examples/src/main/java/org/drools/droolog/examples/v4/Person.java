@@ -12,11 +12,14 @@ public class Person {
     private final String lastName;
     @ObjectTerm
     private final Address address;
+    @ObjectTerm
+    private final Phone phone;
 
-    public Person(String firstName, String lastName, Address address) {
+    public Person(String firstName, String lastName, Address address, Phone phone) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.address = address;
+        this.phone = phone;
     }
 
     public String firstName() {
@@ -31,6 +34,10 @@ public class Person {
         return address;
     }
 
+    public Phone phone() {
+        return phone;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -40,14 +47,16 @@ public class Person {
             return false;
         }
         Person person = (Person) o;
-        return Objects.equals(firstName, person.firstName) &&
+        return Objects.equals(meta, person.meta) &&
+                Objects.equals(firstName, person.firstName) &&
                 Objects.equals(lastName, person.lastName) &&
-                Objects.equals(address, person.address);
+                Objects.equals(address, person.address) &&
+                Objects.equals(phone, person.phone);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstName, lastName, address);
+        return Objects.hash(meta, firstName, lastName, address, phone);
     }
 
     @Override
@@ -56,6 +65,7 @@ public class Person {
                 "firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", address=" + address +
+                ", phone=" + phone +
                 '}';
     }
 }
