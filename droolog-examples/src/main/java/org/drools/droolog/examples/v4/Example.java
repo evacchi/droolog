@@ -59,10 +59,6 @@ public class Example {
 
         System.out.println(Arrays.toString(vbindings));
 
-        // FIXME can we codegen this?
-        // fp1 contains all of the values for constructing
-        // 1) person 2) address, which is nested
-        // how do we walk the **entire** POJO tree at annotation processing time?
         Person unified = PersonMeta.create(fp1);
 
         System.out.println(unified);

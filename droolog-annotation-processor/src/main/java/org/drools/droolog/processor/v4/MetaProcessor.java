@@ -4,7 +4,6 @@ import java.util.EnumSet;
 import java.util.List;
 
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.util.ElementFilter;
@@ -84,33 +83,32 @@ public class MetaProcessor {
                         new Parameter(new ClassOrInterfaceType("Object"), "args").setVarArgs(true)
                 ))
                 .setBody(
-                new BlockStmt(
-                        new NodeList<>(
-                                new ReturnStmt(
-                                        expr
+                        new BlockStmt(
+                                new NodeList<>(
+                                        new ReturnStmt(
+                                                expr
+                                        )
                                 )
                         )
-                )
-        );
+                );
     }
 
-    private static Expression visitConstructor(String name, ExecutableElement el, int offset) {
+    private static Expression visitConstructor(String name, Element el, int offset) {
         NodeList<Expression> parameters = new NodeList<>();
-        List<? extends VariableElement> ps = el.getParameters();
+        List<? extends VariableElement> ps = ElementFilter.fieldsIn(el.getEnclosedElements()).stream().filter(v -> !v.getSimpleName().contentEquals("meta")).collect(toList());
         int count = offset;
         for (VariableElement v : ps) {
-            Expression r = v.asType().accept(new ConstructorTypeVisitor(), offset + ps.size());
+            int off = offset + ps.size();
+            Expression r = v.asType().accept(new ConstructorTypeVisitor(), off);
             if (r == null) {
                 parameters.add(
                         new CastExpr(
                                 new ClassOrInterfaceType(v.asType().toString()),
-                                new ArrayAccessExpr(new NameExpr("args"), new IntegerLiteralExpr(count++))
-                        )
-                );
+                                new ArrayAccessExpr(new NameExpr("args"), new IntegerLiteralExpr(count++))));
             } else {
                 parameters.add(r);
+                count++;
             }
-
         }
 
         return new ObjectCreationExpr(null, new ClassOrInterfaceType(name), parameters);
@@ -120,8 +118,10 @@ public class MetaProcessor {
 
         @Override
         public Expression visitDeclared(DeclaredType t, Integer count) {
-            if (t.asElement().getAnnotation(ObjectTerm.class) == null) return null;
-            return visitConstructor(t.toString(), ElementFilter.constructorsIn(t.asElement().getEnclosedElements()).get(0), count);
+            if (t.asElement().getAnnotation(ObjectTerm.class) == null) {
+                return null;
+            }
+            return visitConstructor(t.toString(), t.asElement(), count);
         }
     }
 
@@ -133,7 +133,7 @@ public class MetaProcessor {
         arrays.add(firstArray);
         List<FieldProcessor> fields = fieldProcessorsFor(el);
         for (FieldProcessor fp : fields) {
-            if (fp.type().asString().equals(metaName)) {
+            if (fp.name().equals("meta")) {
                 continue;
             }
             if (fp.isStructure()) {

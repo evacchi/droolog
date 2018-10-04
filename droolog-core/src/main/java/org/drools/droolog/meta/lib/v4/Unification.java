@@ -17,24 +17,6 @@ public class Unification {
         return values;
     }
 
-    public static <T> Object[] values(Object[] left, Object[] right, int[] linearized, int[] bindings) {
-        Object[] values = new Object[linearized.length];
-        for (int tidx = 0; tidx < linearized.length; tidx++) {
-            int t = linearized[tidx];
-            if (isVar(t)) {
-                int binding = bindings[t];
-                if (binding < 0) {
-                    values[tidx] = left[-binding - 1];
-                } else if (binding > 0) {
-                    values[tidx] = right[binding - 1];
-                }
-            } else {
-                values[tidx] = left[tidx];
-            }
-        }
-        return values;
-    }
-
     public static void of(int[] left, int[] right, int[] bindings) {
         if (left.length != right.length) {
             throw new IllegalArgumentException(String.format("length mismatch %d != %d", left.length, right.length));
