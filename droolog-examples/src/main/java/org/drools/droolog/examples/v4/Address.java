@@ -7,7 +7,7 @@ import org.drools.droolog.meta.lib.v4.ObjectTerm;
 @ObjectTerm
 public class Address {
 
-    public final AddressMeta meta = new AddressMeta(this);
+    public final AddressMeta meta = new AddressMeta();
 
     private final String street;
     private final String city;

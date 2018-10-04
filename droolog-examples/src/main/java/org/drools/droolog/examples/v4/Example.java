@@ -52,14 +52,14 @@ public class Example {
         System.out.println(Arrays.toString(bindings));
         assert Arrays.equals(expected, bindings);
 
-        Object[] fp1 = p1.meta.values();
-        Object[] fp2 = p2.meta.values();
+        Object[] fp1 = PersonFactory.Instance.values(p1);
+        Object[] fp2 = PersonFactory.Instance.values(p2);
         Object[] vbindings = Unification.values(fp1, fp2, bindings);
         Unification.args(fp1, pp1, vbindings);
 
         System.out.println(Arrays.toString(vbindings));
 
-        Person unified = PersonMeta.create(fp1);
+        Person unified = PersonFactory.Instance.create(fp1);
 
         System.out.println(unified);
     }

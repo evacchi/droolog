@@ -34,6 +34,7 @@ public class DroologProcessor extends AbstractProcessor {
         Filer f = processingEnv.getFiler();
         CompilationUnitProcessor cup = new CompilationUnitProcessor(f);
         MetaProcessor metaProcessor = new MetaProcessor();
+        FactoryProcessor factoryProcessor = new FactoryProcessor();
 
         for (TypeElement annotation : annotations) {
             Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(annotation);
@@ -46,8 +47,11 @@ public class DroologProcessor extends AbstractProcessor {
 
                 ClassOrInterfaceDeclaration meta = metaProcessor
                         .classDeclaration(el);
+                ClassOrInterfaceDeclaration factory = factoryProcessor
+                        .classDeclaration(el);
 
                 cup.process(el, packageName, meta);
+                cup.process(el, packageName, factory);
             }
         }
         return false;

@@ -6,7 +6,7 @@ import org.drools.droolog.meta.lib.v4.ObjectTerm;
 
 @ObjectTerm
 public class Person {
-    public final PersonMeta meta = new PersonMeta(this);
+    public final PersonMeta meta = new PersonMeta();
 
     private final String firstName;
     private final String lastName;
