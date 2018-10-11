@@ -1,4 +1,4 @@
-package org.drools.droolog.examples.v2;
+package org.drools.droolog.examples.manual.v2;
 
 import org.drools.droolog.meta.lib.v2.Term;
 import org.drools.droolog.meta.lib.v2.Term.*;

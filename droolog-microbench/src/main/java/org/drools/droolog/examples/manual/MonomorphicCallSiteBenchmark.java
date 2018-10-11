@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package org.drools.droolog.examples;
+package org.drools.droolog.examples.manual;
 
-import org.drools.droolog.examples.v2.AddressMeta;
-import org.drools.droolog.examples.v2.PersonMeta;
-import org.drools.droolog.examples.v2.PersonObject;
-import org.drools.droolog.examples.v2.Phone;
-import org.drools.droolog.examples.v2.PhoneMeta;
-import org.drools.droolog.examples.v3.Address;
-import org.drools.droolog.examples.v3.Person;
+import org.drools.droolog.examples.manual.v2.AddressMeta;
+import org.drools.droolog.examples.manual.v2.PersonMeta;
+import org.drools.droolog.examples.manual.v2.PersonObject;
+import org.drools.droolog.examples.manual.v2.Phone;
+import org.drools.droolog.examples.manual.v2.PhoneMeta;
+import org.drools.droolog.examples.manual.v3.Address;
+import org.drools.droolog.examples.manual.v3.Person;
 import org.drools.droolog.meta.lib.v2.Term.Atom;
 import org.drools.droolog.meta.lib.v2.Term.Structure;
 import org.openjdk.jmh.annotations.*;
@@ -53,7 +53,7 @@ public class MonomorphicCallSiteBenchmark {
 
     Person v3 = new Person("Paul",
                            new Address(null, "Liverpool"),
-                           new org.drools.droolog.examples.v3.Phone("123-123-123"));
+                           new org.drools.droolog.examples.manual.v3.Phone("123-123-123"));
 
     org.drools.droolog.meta.lib.v3.Structure.Factory[] v3s =
             new org.drools.droolog.meta.lib.v3.Structure.Factory[NUM_REFS * 3];
@@ -63,7 +63,7 @@ public class MonomorphicCallSiteBenchmark {
     AddressMeta address = AddressMeta.Instance;
     PhoneMeta phone = PhoneMeta.Instance;
 
-    Structure<org.drools.droolog.examples.v2.Address> liverpool =
+    Structure<org.drools.droolog.examples.manual.v2.Address> liverpool =
             address.of(variable(), atom("liverpool"));
     Structure<Phone> number = phone.of(atom("123-123-123"));
     Structure<PersonObject> p1 = person.of(paul, liverpool, number);

@@ -1,7 +1,5 @@
 package org.drools.droolog.examples.v2simple;
 
-import org.drools.droolog.examples.v2simple.AddressMeta;
-import org.drools.droolog.examples.v2simple.PersonMeta;
 import org.drools.droolog.meta.lib.v2simple.Term;
 import org.drools.droolog.meta.lib.v2simple.Unification;
 
@@ -11,6 +9,10 @@ import static org.drools.droolog.meta.lib.v2simple.Term.variable;
 public class Example {
 
     public static void main(String[] args) {
+        new Example().unify();
+    }
+
+    public Person unify() {
         var first   = atom("Paul");
         var second  = atom("McCartney");
         var street  = atom("20 Forthlin Road");
@@ -27,26 +29,24 @@ public class Example {
 
             Unification<Person> unification = Unification.of(p1, p2);
             Term.Structure<Person> s = unification.term();
-            Person p = person.of(s);
+            return person.of(s);
 
-            System.out.println(s);
-            System.out.println(p);
-            System.out.println(unification.bindings());
+            // System.out.println(s);
+            // System.out.println(p);
+            // System.out.println(unification.bindings());
         }
 
-        {
-            Term.Structure<Person> p1 = person.of(first, variable(), variable());
-            Term.Structure<Person> p2 = person.of(variable(), second, variable());
-
-            Unification<Person> unification = Unification.of(p1, p2);
-            Term.Structure<Person> s = unification.term();
-            Person p = person.of(s);
-
-            System.out.println(s);
-            System.out.println(p);
-            System.out.println(unification.bindings());
-        }
-
+//        {
+//            Term.Structure<Person> p1 = person.of(first, variable(), variable());
+//            Term.Structure<Person> p2 = person.of(variable(), second, variable());
+//
+//            Unification<Person> unification = Unification.of(p1, p2);
+//            Term.Structure<Person> s = unification.term();
+//            Person p = person.of(s);
+//
+//            System.out.println(s);
+//            System.out.println(p);
+//            System.out.println(unification.bindings());
+//        }
     }
-
 }

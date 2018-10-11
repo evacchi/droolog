@@ -1,11 +1,10 @@
 package org.drools.droolog.examples.v1;
 
-import org.drools.droolog.examples.v1.PersonMeta;
 import org.drools.droolog.meta.lib.v1.Unification;
 
 public class Example {
 
-    public static void main(String... args) {
+    public static Person main(String... args) {
         PersonMeta m = PersonMeta.Instance;
 
         // person(paul, X)
@@ -29,12 +28,14 @@ public class Example {
         // both obj1, obj2 result in
         // person(paul, 50)
 
-        System.out.println(obj1);
-        PersonMeta.Structure t1 = m.termOf(obj1);
-        System.out.println(t1);
+        // System.out.println(obj1);
+        // PersonMeta.Structure t1 = m.termOf(obj1);
+        // System.out.println(t1);
 
-        System.out.println(obj2);
-        PersonMeta.Structure t2 = m.termOf(obj2);
-        System.out.println(t2);
+        // System.out.println(obj2);
+        // PersonMeta.Structure t2 = m.termOf(obj2);
+        // System.out.println(t2);
+
+        return obj1;
     }
 }

@@ -15,7 +15,7 @@ public class Example {
         new Example().unify();
     }
 
-    public void unify() {
+    public Person unify() {
         TermState ts = new TermState();
         Person p1 = new Person("Paul", null, new Address(null, "Liverpool"), new Phone("123-123-123"));
         Person p2 = new Person(null, "McCartney", new Address("20 Forthlin Road", null), new Phone(null));
@@ -48,27 +48,27 @@ public class Example {
 
         int[] bindings = new int[ts.varCount()];
         Unification.of(pp1, pp2, bindings);
-        int[] expected = {
-                left(PersonMeta.firstName, 0), // Paul
-                right(PersonMeta.lastName, 0), // McCartney
-                right(AddressMeta.street, PersonMeta.$size), // 20 Forthlin Road
-                left(AddressMeta.city, PersonMeta.$size),  // Liverpool
-                left(PhoneMeta.number, PersonMeta.$size + AddressMeta.$size)
-        };
-        System.out.println(Arrays.toString(expected));
-        System.out.println(Arrays.toString(bindings));
-        assert Arrays.equals(expected, bindings);
+//        int[] expected = {
+//                left(PersonMeta.firstName, 0), // Paul
+//                right(PersonMeta.lastName, 0), // McCartney
+//                right(AddressMeta.street, PersonMeta.$size), // 20 Forthlin Road
+//                left(AddressMeta.city, PersonMeta.$size),  // Liverpool
+//                left(PhoneMeta.number, PersonMeta.$size + AddressMeta.$size)
+//        };
+//        System.out.println(Arrays.toString(expected));
+//        System.out.println(Arrays.toString(bindings));
+//        assert Arrays.equals(expected, bindings);
 
         Object[] fp1 = PersonFactory.Instance.values(p1);
         Object[] fp2 = PersonFactory.Instance.values(p2);
         Object[] vbindings = Unification.values(fp1, fp2, bindings);
         Unification.args(fp1, pp1, vbindings);
 
-        System.out.println(Arrays.toString(vbindings));
+//        System.out.println(Arrays.toString(vbindings));
 
         Person unified = PersonFactory.Instance.create(fp1);
 
-        System.out.println(unified);
+        return unified;
     }
 
     private int left(int i, int offset) {

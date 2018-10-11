@@ -8,6 +8,10 @@ import static org.drools.droolog.meta.lib.v3.TermState.*;
 public class Example {
 
     public static void main(String[] args) {
+        new Example().unify();
+    }
+
+    public Person unify() {
         Person p1 = new Person("Paul", new Address(null, "Liverpool"));
         p1.address().meta().setTermState(street, Free);
 
@@ -17,8 +21,10 @@ public class Example {
 
         Person r = Unification.of(p1, p2).structure();
 
-        System.out.println(p1);
-        System.out.println(p2);
-        System.out.println(r);
+        // System.out.println(p1);
+        // System.out.println(p2);
+        // System.out.println(r);
+
+        return r;
     }
 }

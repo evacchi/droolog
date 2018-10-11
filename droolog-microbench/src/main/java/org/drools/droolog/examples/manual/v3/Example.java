@@ -1,9 +1,9 @@
-package org.drools.droolog.examples.v3;
+package org.drools.droolog.examples.manual.v3;
 
 import org.drools.droolog.meta.lib.v3.Unification;
 
-import static org.drools.droolog.examples.v3.Address_.*;
-import static org.drools.droolog.examples.v3.Person_.*;
+import static org.drools.droolog.examples.manual.v3.Address_.*;
+import static org.drools.droolog.examples.manual.v3.Person_.*;
 import static org.drools.droolog.meta.lib.v3.TermState.*;
 
 public class Example {
