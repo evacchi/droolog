@@ -7,10 +7,14 @@ public class Address implements Structure<Address> {
 
     final private String street;
     final private String city;
+    final private String country;
+    final private String code;
 
-    public Address(String street, String city) {
+    public Address(String street, String city, String country, String code) {
         this.street = street;
         this.city = city;
+        this.country = country;
+        this.code = code;
     }
 
     public String street() {
@@ -21,11 +25,22 @@ public class Address implements Structure<Address> {
         return city;
     }
 
+    public String country() {
+        return country;
+    }
+
+    public String code() {
+        return code;
+    }
+
     @Override
     public String toString() {
         return "Address{" +
-                "street='" + street + '\'' +
+                "meta=" + meta +
+                ", street='" + street + '\'' +
                 ", city='" + city + '\'' +
+                ", country='" + country + '\'' +
+                ", code='" + code + '\'' +
                 '}';
     }
 

@@ -44,28 +44,40 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @Fork(2)
 public class UnificationBench {
 
+    org.drools.droolog.examples.v2.Example e2 =
+            new org.drools.droolog.examples.v2.Example();
+
+    org.drools.droolog.examples.v2simple.Example e2simple =
+            new org.drools.droolog.examples.v2simple.Example();
+
+    org.drools.droolog.examples.v3.Example e3 =
+            new org.drools.droolog.examples.v3.Example();
+
+    org.drools.droolog.examples.v4.Example e4 =
+            new org.drools.droolog.examples.v4.Example();
+
     @Setup
     public void init() {
     }
 
     @Benchmark
     public void v2(Blackhole bh) {
-        new org.drools.droolog.examples.v2.Example().unify();
+        bh.consume(e2.unify());
     }
 
     @Benchmark
     public void v2simple(Blackhole bh) {
-        bh.consume(new org.drools.droolog.examples.v2simple.Example().unify());
+        bh.consume(e2simple.unify());
     }
 
     @Benchmark
     public void v3(Blackhole bh) {
-        bh.consume(new org.drools.droolog.examples.v3.Example().unify());
+        bh.consume(e3.unify());
     }
 
     @Benchmark
     public void v4(Blackhole bh) {
-        bh.consume(new org.drools.droolog.examples.v4.Example().unify());
+        bh.consume(e4.unify());
     }
 
     public static void main(String[] args) throws RunnerException {
